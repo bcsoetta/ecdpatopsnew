@@ -1,0 +1,15 @@
+.bc-bg-black {
+    background-color: black;
+}
+
+.bc-bg-green {
+    background-color: #22c122 !important;
+}
+
+.bc-bg-red {
+    background-color: #ff0033 !important;
+}
+
+.bc-font-flight {
+    font-size: 1.75rem;
+}

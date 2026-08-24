@@ -1,0 +1,76 @@
+ptps notes
+==================
+set user session on application/libraries/page.php
+bypass login application/config/routes.php
+set link ajax spmb list => /assets/js/pages/crud/datatables/data-sources/ajax-server-sides.php
+
+
+
+task
+==========
+/**
+module spmb
+**/
+* pembawaaan barang trigger dari user (jika tdk bawa barang maka form barang tidak ada)
+jika bawa barang maka button save disable sebelum barang diinput
+* phone number & email muncul setelah trigger user bawa barang
+****** penambahan item barang di clear modal data
+* load data barang di list spmb
+* cek fungsi verifikasi (quantity, sisa harus berkurang mengikuti data sebelumnya ( ex: 0: 500, 1: 300 sisa 200, 2 harus 200 agar 0))
+* fungsi print format terlampir
+
+** new spmb
+*kpu bea cukai soeta as dfault (pabean office dep, arrival)
+* baris 1 - 6 required
+* bhsa indo
+* airport dep hilang
+* airport arr ganti negara tujuan
+* add item data ada harga satuan
+* currency (priority idr, usd sisanya pake data dari internet)
+* harga total = qty * hrg satuan
+* dokumen pelengkap pabean (jenis dok, nomor, tanggal, attachment berupa foto) (tidak ada korelasi dngn item data), bisa lebih dari 1
+* maksud pembawaan
+
+
+
+** fungsi print
+* nama penumpang, tanggal print (now)
+
+
+* list spmb
+* search by doc
+** status (sesuai, tidak sesuai)
+*** tidak sesuai mncul note 
+*** sesuai muncul sperti existing, verification dan note
+**** jika verification - qty  = 0, sesuai seluruhnya if not sesuai sebagian
+*tambah status
+
+
+/**
+status
+*/
+- tidak bisa diedit (artinya diubah datanya)
+- tidak bisa diedit jika setelah di print
+- status print bisa dalam keadaan open (verification is still in use)
+- function edit & delete
+- print (data kosong diganti -)
+- npwp yang sangat tidak wajib diisi
+- simpan agar tidak duplicate (progress bar)
+- data kebangsaan ambil dari negara tujuan
+- delimiter .
+- nip nama petugas ambil dari user login yang membuat
+- package dipaling atas
+- kemudian SU suitcase
+
+
+/**
+Import
+*/
+- pos tarif hs code grab from API
+- hs code (bm,ppn,ppnbm)
+- total pungutan = bm + ppn + pph + ppnbm
+
+
+
+review (27 okt 2021)
+===============================

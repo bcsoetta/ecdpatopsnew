@@ -1,0 +1,11 @@
+A.4 delete done (edit on progress)
+B.8, B.10, B.11, B.14A, B.14B, B.14C, B.14D, B.14E, B.14F, B.14G
+catatan tambahan
+poin:
+20, 22
+
+
+
+/**
+structure data ipl has changed
+*/
