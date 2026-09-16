@@ -165,20 +165,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Penjamin</td>
-                    <td>:</td>
-                    <td colspan="4">
-                        <?= $warrant->name; ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Alamat</td>
-                    <td>:</td>
-                    <td colspan="4">
-                        <?= $warrant->address; ?>
-                    </td>
-                </tr>
-                <tr>
                     <td>Jumlah Jaminan</td>
                     <td>:</td>
                     <td colspan="4">Rp
@@ -308,7 +294,7 @@
                 </tr>
                 <tr>
                     <td width="30%">
-                        <?= $warrant->name; ?>
+                        &nbsp;
                     </td>
                     <td width="5%">&nbsp;</td>
                     <td width="20%" style="border-right: 1px solid;"></td>

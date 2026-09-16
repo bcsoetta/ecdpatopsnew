@@ -81,7 +81,7 @@
                         <!--begin::Entry-->
                         <div class="d-flex flex-column-fluid">
                             <!--begin::Container-->
-                            <div class="container">
+                            <div class="container-fluid">
                                 <!--begin::Card-->
                                 <div class="card card-custom">
                                     <div class="card-header">
@@ -144,8 +144,8 @@
                                             <!-- end row in card header -->
                                         </form>
                                         <div class="d-none" name="searchResult">
-                                            <div class="card">
-                                                <table class="table table-bordered">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover w-100">
                                                     <thead>
                                                         <tr class="text-center">
                                                             <!-- <th>No.</th> -->
@@ -191,7 +191,6 @@
                                                     <tbody><!-- Appended by Ajax --></tbody>
                                                 </table>
                                             </div>
-                                            
                                             <div class="text-center">
                                                 <div class="btn-group" role="group" name="searchNav">
                                                     <button type="button" class="btn btn-primary" name="prev"><span aria-hidden="true" class="fa fa-chevron-left"></span></button>
@@ -218,624 +217,761 @@
         <?php $this->load->view('aside/user');?>    
         <?php $this->load->view('aside/script');?>
 
-        <!-- Modal for new valas -->
+        <!-- Modal create IS - wizard 5 tab -->
         <div class="modal fade" id="newModal" name="newModal" data-backdrop="static" style="overflow: scroll !important;">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <form name="newForm">
-                        <div class="modal-header">
-                            <h4 class="modal-title"><span view="title"></span> Input Impor Sementara - Penumpang</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-4" style="border-right: 1px dashed;">
-                                    <fieldset class="form-group">
-                                        <div class="row">
-                                            <legend class="col-form-label col-sm-4 pt-0">Jenis Identitas</legend>
-                                            <div class="col-sm-8">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="identityType" id="identityType1" value="1" required>
-                                                    <label class="form-check-label" for="identityType1">
-                                                        NPWP
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="identityType" id="identityType2" value="2" required>
-                                                    <label class="form-check-label" for="identityType2">
-                                                        KTP
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="identityType" id="identityType3" value="3" required>
-                                                    <label class="form-check-label" for="identityType3">
-                                                        Paspor
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <!-- end col -->
-                                        </div>
-                                        <!-- end row -->
-                                    </fieldset>
-                                    <div class="form-group">
-                                        <label for="name">Nama Lengkap</label>
-                                        <input type="text" name="name" class="form-control" id="name" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="address">Alamat Lengkap</label>
-                                        <textarea name="address" class="form-control" id="address"></textarea>
-                                    </div>  
-                                    <div class="form-group">
-                                        <label for="identity">Nomor Paspor</label>
-                                        <input type="text" name="identity" class="form-control" id="identity" />
-                                    </div>
-                                    <h5>DATA SPONSOR</h5> <hr />
-                                    <div class="form-group">
-                                        <label for="sponsName">Nama Lengkap</label>
-                                        <input type="text" name="sponsName" class="form-control" id="sponsName" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="sponsAddress">Alamat di Indonesia</label>
-                                        <textarea name="sponsAddress" class="form-control" id="sponsAddress"></textarea>
-                                    </div>  
-                                    <div class="form-group">
-                                        <label for="sponsPhone">Nomor Telepon</label>
-                                        <input type="text" name="sponsPhone" class="form-control" id="sponsPhone" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="sponsNik">NIK</label>
-                                        <input type="text" name="sponsNik" class="form-control" id="sponsNik" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="sponsLocation">Lokasi Penggunaan</label>
-                                        <input type="text" name="sponsLocation" class="form-control" id="sponsLocation" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="sponsReason">Tujuan Penggunaan</label>
-                                        <input type="text" name="sponsReason" class="form-control" id="sponsReason" />
-                                    </div>
-                                    <h5>Jaminan</h5> <hr />
-                                    <fieldset class="form-group">
-                                        <div class="row">
-                                            <legend class="col-form-label col-sm-4 pt-0">Pengembalian</legend>
-                                            <div class="col-sm-8">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee1" value="1" required>
-                                                    <label class="form-check-label" for="returnGuarantee1">
-                                                        Diambil sendiri
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee2" value="2" required>
-                                                    <label class="form-check-label" for="returnGuarantee2">
-                                                        Transfer bank
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee3" value="3" required>
-                                                    <label class="form-check-label" for="returnGuarantee3">
-                                                        Sponsor
-                                                    </label>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Input Impor Sementara - Penumpang</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs nav-bold nav-tabs-line" id="isWizardTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="javascript:;" data-tab="1">1. Pemberitahu</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="javascript:;" data-tab="2">2. Perjalanan &amp; Sponsor</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="javascript:;" data-tab="3">3. Barang</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="javascript:;" data-tab="4">4. Jaminan</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="javascript:;" data-tab="5">5. Review</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content pt-5" id="isWizardContent">
+                            <div class="tab-pane" id="isTab1" data-tab-pane="1">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <fieldset class="form-group">
+                                            <div class="row">
+                                                <legend class="col-form-label col-sm-4 pt-0">Jenis Identitas</legend>
+                                                <div class="col-sm-8">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="identityType" id="identityType1" value="1">
+                                                        <label class="form-check-label" for="identityType1">NPWP</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="identityType" id="identityType2" value="2">
+                                                        <label class="form-check-label" for="identityType2">KTP</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="identityType" id="identityType3" value="3">
+                                                        <label class="form-check-label" for="identityType3">Paspor</label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <!-- end col -->
+                                        </fieldset>
+                                        <div class="form-group">
+                                            <label for="name">Nama Lengkap</label>
+                                            <input type="text" name="name" class="form-control" id="name" />
                                         </div>
-                                        <!-- end row -->
-                                    </fieldset>
+                                        <div class="form-group">
+                                            <label for="identity" id="identityLabel">Nomor Identitas</label>
+                                            <input type="text" name="identity" class="form-control" id="identity" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="pemberitahuEmail">Email</label>
+                                            <div class="input-group">
+                                                <input type="email" name="pemberitahuEmail" class="form-control" id="pemberitahuEmail" placeholder="nama@contoh.com" />
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-primary" id="btnValidateEmail">Validasi</button>
+                                                </div>
+                                            </div>
+                                            <span class="form-text" id="emailValidateMsg"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="address">Alamat Lengkap</label>
+                                            <textarea name="address" class="form-control" id="address"></textarea>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="airportIn">Bandara Masuk</label>
-                                                <select class="form-control selectpicker" data-size="7" data-live-search="true" name="airportIn" id="airportIn" >
-                                                    <option value="">-- Pilih --</option>
-                                                    <?php
-                                                    foreach ($office as $val) {?>
-                                                    <option value="<?=$val['id'];?>" <?= ($val['id'] == 143) ? 'selected' : '' ;?> ><?=$val['name'];?></option>
-                                                    <?php
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="invNumber">No. Invoice</label>
-                                                <input type="text" name="invNumber" class="form-control" id="invNumber" />
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="invDate">Tanggal Invoice</label>
-                                                <input type="text" name="invDate" class="form-control bc-date" id="invDate" />
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="carrierName">Nama & Nomor Sarana Pengangkut</label>
-                                                <input type="text" name="carrierName" class="form-control" id="carrierName" />
-                                            </div>
+                            </div>
+
+                            <div class="tab-pane d-none" id="isTab2" data-tab-pane="2">
+                                <h5>DATA PERJALANAN</h5>
+                                <hr />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="airportIn">Bandara Masuk</label>
+                                            <select class="form-control selectpicker" data-size="7" data-live-search="true" name="airportIn" id="airportIn">
+                                                <option value="">-- Pilih --</option>
+                                                <?php foreach ($office as $val) { ?>
+                                                <option value="<?=$val['id'];?>" <?= ($val['id'] == 143) ? 'selected' : '' ;?>><?=$val['name'];?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
-                                        <!-- end col-md-6 -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="airportOut">Bandara Keluar</label>
-                                                <select class="form-control selectpicker" data-size="7" data-live-search="true" name="airportOut" id="airportOut">
-                                                    <option value="">-- Pilih --</option>
-                                                    <?php
-                                                    foreach ($office as $val) {?>
-                                                    <option value="<?=$val['id'];?>" <?= ($val['id'] == 143) ? 'selected' : '' ;?>><?=$val['name'];?></option>
-                                                    <?php
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div> 
-                                            <div style="height: 64px; margin-bottom: 1.75rem;"></div>
-                                            <div class="form-group">
-                                                <label for="invDateOut">Perkiraan Tanggal Keluar</label>
-                                                <input type="text" name="invDateOut" class="form-control bc-date" id="invDateOut" />
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="periode">Jangka Waktu Impor Sementara (Hari)</label>
-                                                <input type="text" name="periode" class="form-control" id="periode" value="90" />
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="invNumber">No. Invoice</label>
+                                            <input type="text" name="invNumber" class="form-control" id="invNumber" />
                                         </div>
-                                        <!-- end col-md-6 -->
+                                        <div class="form-group">
+                                            <label for="invDate">Tanggal Invoice</label>
+                                            <input type="text" name="invDate" class="form-control bc-date" id="invDate" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="carrierName">Nama &amp; Nomor Sarana Pengangkut</label>
+                                            <input type="text" name="carrierName" class="form-control" id="carrierName" />
+                                        </div>
                                     </div>
-                                    <!-- end row --> 
-                                    <hr /><h5>REKENING</h5> <hr />
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="airportOut">Bandara Keluar</label>
+                                            <select class="form-control selectpicker" data-size="7" data-live-search="true" name="airportOut" id="airportOut">
+                                                <option value="">-- Pilih --</option>
+                                                <?php foreach ($office as $val) { ?>
+                                                <option value="<?=$val['id'];?>" <?= ($val['id'] == 143) ? 'selected' : '' ;?>><?=$val['name'];?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="invDateOut">Perkiraan Tanggal Keluar</label>
+                                            <input type="text" name="invDateOut" class="form-control bc-date" id="invDateOut" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="periode">Jangka Waktu Impor Sementara (Hari)</label>
+                                            <input type="text" name="periode" class="form-control" id="periode" value="90" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <h5 class="mt-4">DATA SPONSOR &amp; PENGGUNAAN</h5>
+                                <hr />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="sponsName">Nama Lengkap</label>
+                                            <input type="text" name="sponsName" class="form-control" id="sponsName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sponsAddress">Alamat di Indonesia</label>
+                                            <textarea name="sponsAddress" class="form-control" id="sponsAddress"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sponsPhone">Nomor Telepon</label>
+                                            <input type="text" name="sponsPhone" class="form-control" id="sponsPhone" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="sponsNik">NIK</label>
+                                            <input type="text" name="sponsNik" class="form-control" id="sponsNik" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sponsLocation">Lokasi Penggunaan</label>
+                                            <input type="text" name="sponsLocation" class="form-control" id="sponsLocation" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sponsReason">Tujuan Penggunaan</label>
+                                            <input type="text" name="sponsReason" class="form-control" id="sponsReason" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane d-none" id="isTab3" data-tab-pane="3">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5>Data Barang</h5>
+                                        <hr />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button id="btnAddItem" type="button" class="btn btn-sm btn-success form-control"><i class="fa fa-plus"></i> Detail Barang</button>
+                                    </div>
+                                </div>
+                                <table name="importTable" class="table table-striped table-hover table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Barang</th>
+                                            <th>Jumlah</th>
+                                            <th>HS Code &amp; Tarif</th>
+                                            <th>Nilai Pabean (CIF)</th>
+                                            <th class="d-none">Pembebasan</th>
+                                            <th>Jml BM PDRI</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                        <tr class="d-none" template="importTableBody">
+                                            <td view="imName"></td>
+                                            <td view="imQty"></td>
+                                            <td view="imHscode"></td>
+                                            <td view="imPabean"></td>
+                                            <td class="d-none" view="imFree"></td>
+                                            <td view="imCollect"></td>
+                                            <td>
+                                                <button type="button" view="actionItemDelete" class="btn btn-sm btn-danger"><i class="fa fa-minus"></i></button>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody><!-- Appended by Ajax --></tbody>
+                                </table>
+                                <table name="importSummaryTable" class="table table-striped table-hover table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2">Summary</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Bea Masuk</td>
+                                            <td view="summBM"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Ppn</td>
+                                            <td view="summPpn"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Pph Impor</td>
+                                            <td view="summPph"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Ppnbm Impor</td>
+                                            <td view="summPpnbm"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Denda Impor</td>
+                                            <td view="summFine"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Bea Masuk dan Pajak</td>
+                                            <td view="summTotal"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="tab-pane d-none" id="isTab4" data-tab-pane="4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>PENGEMBALIAN JAMINAN</h5>
+                                        <hr />
+                                        <fieldset class="form-group">
+                                            <legend class="col-form-label pt-0">Pengembalian</legend>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee1" value="1">
+                                                <label class="form-check-label" for="returnGuarantee1">Diambil sendiri</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee2" value="2">
+                                                <label class="form-check-label" for="returnGuarantee2">Transfer bank</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="returnGuarantee" id="returnGuarantee3" value="3">
+                                                <label class="form-check-label" for="returnGuarantee3">Sponsor</label>
+                                            </div>
+                                        </fieldset>
+                                        <div id="wizardAccountSection">
+                                            <h5>REKENING</h5>
+                                            <hr />
                                             <div class="form-group">
                                                 <label for="accountNumber">Nomor</label>
                                                 <input type="text" name="accountNumber" class="form-control" id="accountNumber" />
                                             </div>
                                             <div class="form-group">
-                                                <label for="accountName">Name</label>
+                                                <label for="accountName">Nama</label>
                                                 <input type="text" name="accountName" class="form-control" id="accountName" />
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="accountBank">Bank</label>
                                                 <input type="text" name="accountBank" class="form-control" id="accountBank" />
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- end row -->
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h5>Data Barang</h5> <hr />
+                                    <div class="col-md-6">
+                                        <h5>DATA JAMINAN</h5>
+                                        <hr />
+                                        <fieldset class="form-group">
+                                            <legend class="col-form-label pt-0">Bentuk Jaminan</legend>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType1" value="1">
+                                                <label class="form-check-label" for="guaranteeType1">Tunai</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType2" value="2">
+                                                <label class="form-check-label" for="guaranteeType2">Bank</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType3" value="3">
+                                                <label class="form-check-label" for="guaranteeType3">Customs Bond</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType4" value="4">
+                                                <label class="form-check-label" for="guaranteeType4">Lainnya</label>
+                                            </div>
+                                        </fieldset>
+                                        <div class="form-group">
+                                            <label for="guaranteeNominal">Jumlah Jaminan</label>
+                                            <input type="text" name="guaranteeNominal" class="form-control" id="guaranteeNominal" readonly />
                                         </div>
-                                        <div class="col-md-4">
-                                            <button id="btnAddItem" type="button" class="btn btn-sm btn-success form-control"><i class="fa fa-plus"></i> Detail Barang</button>
+                                        <div class="form-group">
+                                            <label for="source">Dokumen Sumber Penyerahan Jaminan</label>
+                                            <input type="text" name="source" class="form-control" id="source" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sourceNumber">Nomor</label>
+                                            <input type="text" name="sourceNumber" class="form-control" id="sourceNumber" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sourceDate">Tanggal</label>
+                                            <input type="text" name="sourceDate" class="form-control bc-date" id="sourceDate" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="treasurerName">Nama Bendahara</label>
+                                            <input type="text" name="treasurerName" class="form-control" id="treasurerName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="treasurerNip">NIP</label>
+                                            <input type="text" name="treasurerNip" class="form-control" id="treasurerNip" />
                                         </div>
                                     </div>
-
-                                    <table name="importTable" class="table table-striped table-hover table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <!-- <th>No.</th> -->
-                                                <th>Nama Barang</th>
-                                                <th>Jumlah</th>
-                                                <th>HS Code & Tarif</th>
-                                                <th>Nilai Pabean (CIF)</th>
-                                                <th class="d-none">Pembebasan</th>
-                                                <th>Jml BM PDRI</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                            <tr class="d-none" template="importTableBody">
-                                                <!-- <td view="imNumber"></td> -->
-                                                <td view="imName"></td>
-                                                <td view="imQty"></td>
-                                                <td view="imHscode"></td>
-                                                <td view="imPabean"></td>
-                                                <td class="d-none" view="imFree"></td>
-                                                <td view="imCollect"></td>
-                                                <td>
-                                                    <button view="actionItemDelete" class="btn btn-sm btn-danger"><i class="fa fa-minus"></i></button>
-                                                </td>
-                                            </tr>
-                                        </thead>
-                                        <tbody><!-- Appended by Ajax --></tbody>
-                                    </table>
-                                    <table name="importSummaryTable" class="table table-striped table-hover table-bordered">
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="2">Summary</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Bea Masuk</td>
-                                                <td view="summBM"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Ppn</td>
-                                                <td view="summPpn"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Pph Impor</td>
-                                                <td view="summPph"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Ppnbm Impor</td>
-                                                <td view="summPpnbm"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Denda Impor</td>
-                                                <td view="summFine"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total Bea Masuk dan Pajak</td>
-                                                <td view="summTotal"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
-                                <!-- end col -->
                             </div>
-                            <!-- end row -->
+
+                            <div class="tab-pane d-none" id="isTab5" data-tab-pane="5">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Data Pemberitahu</h5>
+                                        <hr />
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td width="40%">Jenis Identitas</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revIdentityType"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Nomor Identitas</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revIdentity"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Nama</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revName"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Alamat</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revAddress"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Email</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revEmail"></span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <h5>Perjalanan &amp; Sponsor</h5>
+                                        <hr />
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td width="40%">Bandara Masuk</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revAirportIn"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Bandara Keluar</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revAirportOut"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Invoice</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revInvoice"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Sarana Pengangkut</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revCarrier"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Tgl Keluar / Jangka Waktu</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revPeriode"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Sponsor</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revSponsor"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Lokasi / Tujuan</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revUse"></span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Jaminan</h5>
+                                        <hr />
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td width="40%">Pengembalian</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revReturnType"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Rekening</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revAccount"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Bentuk Jaminan</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revGuaranteeType"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Jumlah Jaminan</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revGuaranteeNominal"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Bendahara</td>
+                                                    <td class="text-center">:</td>
+                                                    <td><span view="revTreasurer"></span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <h5>Ringkasan Pungutan</h5>
+                                        <hr />
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Total Bea Masuk</td>
+                                                    <td view="revSummBM"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total Ppn</td>
+                                                    <td view="revSummPpn"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total Pph</td>
+                                                    <td view="revSummPph"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total Ppnbm</td>
+                                                    <td view="revSummPpnbm"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total Denda</td>
+                                                    <td view="revSummFine"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Total Jaminan</b></td>
+                                                    <td><b view="revSummTotal"></b></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <h5>Data Barang</h5>
+                                <hr />
+                                <table name="reviewCreateItems" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Barang</th>
+                                            <th>Jumlah</th>
+                                            <th>HS Code &amp; Tarif</th>
+                                            <th>Nilai Pabean</th>
+                                            <th>BM PDRI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                         </div>
-                        <!-- end modal-body -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Tutup</button>
-                            <button type="submit" class="btn btn-primary font-weight-bold">Selanjutnya</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-light-primary font-weight-bold" id="btnPrevTab">Sebelumnya</button>
+                        <button type="button" class="btn btn-primary font-weight-bold" id="btnNextTab">Lanjut</button>
+                        <button type="button" class="btn btn-success font-weight-bold d-none" id="btnSaveImport">Simpan</button>
+                    </div>
                 </div>
-            <!-- end modal content -->
-        </div>
-        <!-- end modal dialog -->
+            </div>
         </div>
 
         <!-- modal add item -->
         <div class="modal fade" id="addItemModal" name="addItemModal" data-backdrop="static" style="overflow: scroll !important;">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
+                    <style>
+                        #addItemModal .is-calc {
+                            pointer-events: none;
+                            caret-color: transparent;
+                            font-weight: 600;
+                            cursor: default;
+                            color: #6c757d;
+                            box-shadow: none !important;
+                            background-color: #e9ecef !important;
+                        }
+                        #addItemModal .tarif-box {
+                            border: 1px solid #aed6f1;
+                            border-radius: 8px;
+                            padding: 10px 12px 4px;
+                            margin-bottom: 12px;
+                            background-color: #e5f7fb;
+                        }
+                        #addItemModal .tarif-box .form-group { margin-bottom: 8px; }
+                    </style>
                     <form name="addItemForm">
                     <div class="modal-header">
-                        <h4 class="modal-title"><span view="title"></span> Tambah Detail Barang dan Pungutan</h4>
+                        <h4 class="modal-title">Tambah Data Barang</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <div class="form-group">
                                     <label for="itemName">Nama Barang</label>
                                     <input type="text" name="itemName" class="form-control" id="itemName" />
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemTotal">Jumlah</label>
-                                            <input type="text" name="itemTotal" class="form-control" id="itemTotal" />
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="itemBruto">Bruto</label>
-                                            <input type="text" name="itemBruto" class="form-control" id="itemBruto" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPackage">Kemasan</label>
-                                            <select name="itemPackage" id="itemPackage" class="form-control selectpicker" data-size="7" data-live-search="true">
-                                                <option value="">-- Pilih --</option>
-                                                <?php
-                                                foreach ($packages as $val) {?>
-                                                <option value="<?=$val['id'];?>"><?=$val['name'];?></option>
-                                                <?php
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <!-- end col -->
-                                </div>
-                                <!-- end row in col-->
                                 <div class="form-group">
-                                    <label for="itemSpec">Spesifikasi/Identitas/Uraian</label>
-                                    <textarea type="text" name="itemSpec" class="form-control" id="itemSpec"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemCom">Tag Komoditi</label>
-                                    <select name="itemCom" id="itemCom" class="form-control selectpicker" data-size="7" data-live-search="true">
-                                        <option value="">-- Pilih --</option>
-                                        <?php
-                                        foreach ($categories as $val) {?>
-                                            <option value="<?=$val['id'];?>"><?=$val['name'];?></option>
-                                        <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemCurrency">Mata Uang</label>
-                                    <select name="itemCurrency" id="itemCurrency" class="form-control selectpicker" data-size="7" data-live-search="true">
-                                        <option value="">-- Pilih --</option>
-                                        <?php
-                                        $kurs_usd = 0;
-                                        foreach ($kurs as $val) {
-                                            if ($val->kode_valas == 'USD') {
-                                                $kurs_usd = $val->kurs_idr;
-                                            }
-                                        ?>
-                                            
-                                            <option value="<?=$val->kurs_idr;?>"><?=$val->kode_valas;?></option>
-                                        <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemFob">FOB</label>
-                                    <input type="text" name="itemFob" class="form-control" id="itemFob" value="0" />
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemFreight">Freight</label>
-                                            <input type="text" name="itemFreight" class="form-control" id="itemFreight" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemInsurance">Insurance</label>
-                                            <input type="text" name="itemInsurance" class="form-control" id="itemInsurance" value="0" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end row in col -->
-                                <div class="form-group">
-                                    <label for="itemCif">CIF</label>
-                                    <input type="text" name="itemCif" class="form-control" id="itemCif" value="0" readonly />
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemKurs">Kurs / NDPBM</label>
-                                    <input type="text" name="itemKurs" class="form-control" id="itemKurs" value="0" readonly />
-                                </div>
-                                <div class="row d-none">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="itemFreeCurrency">Mata Uang</label>
-                                            <select name="itemFreeCurrency" id="itemFreeCurrency" class="form-control selectpicker" data-size="7" data-live-search="true">
-                                                <option value="0">-- Pilih --</option>
-                                                <?php
-                                                foreach ($kurs as $val) {
-                                                ?>
-                                                    <option value="<?=$val->kurs_idr;?>"><?=$val->kode_valas;?></option>
-                                                <?php
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="itemFree">Pembebasan</label>
-                                            <input type="text" name="itemFree" class="form-control" id="itemFree" value-kurs="<?= $kurs_usd; ?>" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="itemFreeIDR">IDR</label>
-                                            <input type="text" name="itemFreeIDR" class="form-control" id="itemFreeIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- row of free -->
-                                <div class="form-group">
-                                    <label for="itemValue">Nilai Pabean (Rp)</label>
-                                    <input type="text" name="itemValue" class="form-control" id="itemValue" value="0" readonly />
+                                    <label for="itemSpec">Uraian Barang</label>
+                                    <textarea name="itemSpec" class="form-control" id="itemSpec" rows="4"></textarea>
                                 </div>
                             </div>
-                            <!-- end col -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="itemCode">Pos Tarif HS Code</label>
-                                    <select class="form-control selectpicker" data-size="7" data-live-search="true" name="itemCode" id="itemCode" >
+                                    <label for="itemCode">HS Code</label>
+                                    <select class="form-control selectpicker" data-size="7" data-live-search="true" name="itemCode" id="itemCode">
                                         <option value="">-- Pilih --</option>
                                     </select>
-                                    <!-- <textarea type="text" name="itemCode" class="form-control" id="itemCode"></textarea> -->
                                 </div>
-                                <!-- set other values but not for display-->
-                                <input type="hidden" name="itemPosCode" id="itemPosCode"  />
+                                <input type="hidden" name="itemPosCode" id="itemPosCode" />
                                 <input type="hidden" name="itemPosDesc" id="itemPosDesc" />
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPabeanIn">Bea masuk (%)</label>
-                                            <input type="text" name="itemPabeanIn" class="form-control" id="itemPabeanIn" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPabeanInIDR">IDR</label>
-                                            <input type="text" name="itemPabeanInIDR" class="form-control" id="itemPabeanInIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPpn">Ppn Impor (%)</label>
-                                            <input type="text" name="itemPpn" class="form-control" id="itemPpn" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPpnIDR">IDR</label>
-                                            <input type="text" name="itemPpnIDR" class="form-control" id="itemPpnIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPph">Pph Impor (%)</label>
-                                            <input type="text" name="itemPph" class="form-control" id="itemPph" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPphIDR">IDR</label>
-                                            <input type="text" name="itemPphIDR" class="form-control" id="itemPphIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPpnbm">PpnBM Impor (%)</label>
-                                            <input type="text" name="itemPpnbm" class="form-control" id="itemPpnbm" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemPpnbmIDR">IDR</label>
-                                            <input type="text" name="itemPpnbmIDR" class="form-control" id="itemPpnbmIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemFine">Denda (%)</label>
-                                            <input type="text" name="itemFine" class="form-control" id="itemFine" value="0" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="itemFineIDR">IDR</label>
-                                            <input type="text" name="itemFineIDR" class="form-control" id="itemFineIDR" value="0" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- 
-                                        <div class="form-group">
-                                            <label for="itemFine">Denda (%)</label>
-                                            <input type="text" name="itemFine" class="form-control" id="itemFine" value="0" />
-                                        </div>
-                                    </div>
-                                </div>
-                                 -->
-                                <!-- end row in col -->
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="itemTotalCollect">Total Pungutan</label>
-                                    <input type="text" name="itemTotalCollect" class="form-control" id="itemTotalCollect" readonly />
+                                    <label for="itemFob">FOB</label>
+                                    <input type="text" name="itemFob" class="form-control is-zero-clear" id="itemFob" value="0" />
                                 </div>
+                            </div>
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="itemAttach">Lampiran</label>
+                                    <label for="itemInsurance">Insurance</label>
+                                    <input type="text" name="itemInsurance" class="form-control is-zero-clear" id="itemInsurance" value="0" />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="itemFreight">Freight</label>
+                                    <input type="text" name="itemFreight" class="form-control is-zero-clear" id="itemFreight" value="0" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="itemCurrency">Kurs</label>
+                                    <select name="itemCurrency" id="itemCurrency" class="form-control selectpicker" data-size="7" data-live-search="true">
+                                        <option value="">-- Pilih --</option>
+                                        <?php foreach ($kurs as $val) { ?>
+                                            <option value="<?=$val->kurs_idr;?>"><?=$val->kode_valas;?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="itemKurs">NDPBM</label>
+                                    <input type="text" name="itemKurs" class="form-control is-calc" id="itemKurs" value="0" readonly tabindex="-1" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="itemCif">CIF</label>
+                                    <input type="text" name="itemCif" class="form-control is-calc" id="itemCif" value="0" readonly tabindex="-1" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="itemValue">Nilai Pabean</label>
+                                    <input type="text" name="itemValue" class="form-control is-calc" id="itemValue" value="0" readonly tabindex="-1" />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="itemCom">Tag Kategori</label>
+                                    <select name="itemCom" id="itemCom" class="form-control selectpicker" data-size="7" data-live-search="true">
+                                        <option value="">-- Pilih --</option>
+                                        <?php foreach ($categories as $val) { ?>
+                                            <option value="<?=$val['id'];?>"><?=$val['name'];?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="itemTotal">Jumlah</label>
+                                    <input type="text" name="itemTotal" class="form-control" id="itemTotal" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="itemPackage">Jenis Kemasan</label>
+                                    <select name="itemPackage" id="itemPackage" class="form-control selectpicker" data-size="7" data-live-search="true">
+                                        <option value="">-- Pilih --</option>
+                                        <?php foreach ($packages as $val) { ?>
+                                        <option value="<?=$val['id'];?>"><?=$val['name'];?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="itemBruto">Bruto (Kg)</label>
+                                    <input type="text" name="itemBruto" class="form-control" id="itemBruto" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <h6 class="font-weight-bold mb-3">Tarif &amp; Pungutan</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-bm">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPabeanIn">Bea masuk (%)</label>
+                                                <input type="text" name="itemPabeanIn" class="form-control is-calc" id="itemPabeanIn" value="10" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPabeanInIDR">IDR</label>
+                                                <input type="text" name="itemPabeanInIDR" class="form-control is-calc" id="itemPabeanInIDR" value="0" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-ppn">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPpn">Ppn Impor (%)</label>
+                                                <input type="text" name="itemPpn" class="form-control is-zero-clear" id="itemPpn" value="0" />
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPpnIDR">IDR</label>
+                                                <input type="text" name="itemPpnIDR" class="form-control is-calc" id="itemPpnIDR" value="0" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-pph">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPph">Pph Impor (%)</label>
+                                                <select name="itemPph" class="form-control" id="itemPph">
+                                                    <option value="0" selected>0%</option>
+                                                    <option value="5">5%</option>
+                                                    <option value="10">10%</option>
+                                                    <option value="15">15%</option>
+                                                    <option value="20">20%</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPphIDR">IDR</label>
+                                                <input type="text" name="itemPphIDR" class="form-control is-calc" id="itemPphIDR" value="0" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-ppnbm">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPpnbm">PpnBM (%)</label>
+                                                <input type="text" name="itemPpnbm" class="form-control is-zero-clear" id="itemPpnbm" value="0" />
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemPpnbmIDR">IDR</label>
+                                                <input type="text" name="itemPpnbmIDR" class="form-control is-calc" id="itemPpnbmIDR" value="0" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-denda">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemFine">Denda (%)</label>
+                                                <input type="text" name="itemFine" class="form-control is-zero-clear" id="itemFine" value="0" />
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="itemFineIDR">IDR</label>
+                                                <input type="text" name="itemFineIDR" class="form-control is-calc" id="itemFineIDR" value="0" readonly tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tarif-box tarif-total">
+                                    <div class="form-group">
+                                        <label for="itemTotalCollect">Total Pungutan</label>
+                                        <input type="text" name="itemTotalCollect" class="form-control is-calc" id="itemTotalCollect" readonly tabindex="-1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="form-group mb-0">
+                            <label for="itemAttach">Lampiran</label>
+                            <div class="row">
+                                <div class="col-md-4">
                                     <input type="file" class="form-control" name="itemAttach1" id="itemAttach1" accept="image/png, image/gif, image/jpeg" />
+                                </div>
+                                <div class="col-md-4">
                                     <input type="file" class="form-control" name="itemAttach2" id="itemAttach2" accept="image/png, image/gif, image/jpeg" />
+                                </div>
+                                <div class="col-md-4">
                                     <input type="file" class="form-control" name="itemAttach3" id="itemAttach3" accept="image/png, image/gif, image/jpeg" />
                                 </div>
                             </div>
-                            <!-- end col -->
                         </div>
-                        <!-- end row -->
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-danger font-weight-bold" data-dismiss="modal">Tutup</button>
                         <button type="submit" class="btn btn-primary font-weight-bold">Tambah</button>
-                    </div>  
+                    </div>
                     </form>
                 </div>
-                <!-- end modal content -->
             </div>
         </div>
         <!-- end new modal -->
-        <!-- Guarantee modal -->
-        <div class="modal fade" id="guaranteeModal" name="guaranteeModal" data-backdrop="static" style="overflow: scroll !important;">
-            <div class="modal-dialog">
-                <form name="guaranteeForm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title"><span view="title"></span> Data Jaminan</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <fieldset class="form-group">
-                                    <div class="row">
-                                        <legend class="col-form-label col-sm-4 pt-0">Bentuk Jaminan</legend>
-                                        <div class="col-sm-8">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType1" value="1">
-                                                <label class="form-check-label" for="guaranteeType1">
-                                                    Tunai
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType2" value="2">
-                                                <label class="form-check-label" for="guaranteeType2">
-                                                    Bank
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType3" value="3">
-                                                <label class="form-check-label" for="guaranteeType3">
-                                                    Customs Bond
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="guaranteeType" id="guaranteeType4" value="4">
-                                                <label class="form-check-label" for="guaranteeType4">
-                                                    Lainnya
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <!-- end col -->
-                                    </div>
-                                    <!-- end row -->
-                                </fieldset>
-                                <div class="form-group">
-                                    <label for="guaranteeName">Penjamin</label>
-                                    <input type="text" name="guaranteeName" class="form-control" id="guaranteeName" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="guaranteeAddress">Alamat Penjamin</label>
-                                    <textarea type="text" name="guaranteeAddress" class="form-control" id="guaranteeAddress"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="guaranteeNominal">Jumlah Jaminan</label>
-                                    <input type="text" name="guaranteeNominal" class="form-control" id="guaranteeNominal" readonly />
-                                </div>
-                                <!-- 
-                                <div class="form-group">
-                                    <label for="guaranteeNominalSpelling">Dengan Huruf</label>
-                                    <textarea type="text" name="guaranteeNominalSpelling" class="form-control" id="guaranteeNominalSpelling"></textarea>
-                                </div>
-                                 -->
-                                <div class="form-group">
-                                    <label for="source">Dokumen Sumber Penyerahan Jaminan 	</label>
-                                    <input type="text" name="source" class="form-control" id="source" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="sourceNumber">Nomor</label>
-                                    <input type="text" name="sourceNumber" class="form-control" id="sourceNumber" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="sourceDate">Tanggal</label>
-                                    <input type="text" name="sourceDate" class="form-control bc-date" id="sourceDate" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="treasurerName">Nama Bendahara</label>
-                                    <input type="text" name="treasurerName" class="form-control" id="treasurerName" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="treasurerNip">NIP</label>
-                                    <input type="text" name="treasurerNip" class="form-control" id="treasurerNip" />
-                                </div>
-                            </div>
-                            <!-- end col -->
-                        </div>
-                        <!-- end row -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Tutup</button>
-                        <button id="prepPage" type="button" class="btn btn-light-primary font-weight-bold">Sebelumnya</button>
-                        <button type="submit" class="btn btn-primary font-weight-bold">Simpan</button>
-                    </div>
-                </div>
-                </form>
-            </div>
-        </div>
-        <!-- End Guarantee modal -->
 
         <!-- review modal -->
         <div class="modal fade" id="reviewModal" name="reviewModal" data-backdrop="static" style="overflow: scroll !important;">
@@ -1166,27 +1302,6 @@
         </div>
         <!-- modal update status -->
 
-        <!-- modal confirm -->
-        <div class="modal fade" id="confirmModal" name="confirmModal" data-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title"><span view="title"></span> KONFIRMASI</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Sebelum proses simpan, anda akan ditampilkan data-data sebelumnya yang telah anda isi.</p>
-                        <p><b>Ubah data jika ada yang tidak sesuai, dan tekan simpan kembali jika anda sudah yakin.</b></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Tutup</button>
-                        <button type="button" name="confirmYes" class="btn btn-primary font-weight-bold" >Ya</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end modal -->
-
         <!-- modal delete -->
         <div class="modal fade" id="deleteModal" name="deleteModal" data-backdrop="static">
             <div class="modal-dialog">
@@ -1208,6 +1323,6 @@
         </div>
         <!-- end modal -->
 
-        <script src="<?=base_url('assets/js/app.import.js'); ?>"></script>
+        <script src="<?=base_url('assets/js/app.import.js'); ?>?v=20260908d"></script>
     </body>
 </html>

@@ -13,6 +13,8 @@ class Site extends MX_Controller {
 		$this->page->view();
 	}
 	public function logout(){
+			$this->load->model('import_model');
+			$this->import_model->delete_header_draft(TRUE);
 			$this->session->sess_destroy();		
 			redirect(base_url());	
 	}

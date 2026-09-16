@@ -8,6 +8,8 @@ class User extends MY_Controller {
 
 	public function logout()
 	{
+		$this->load->model('import_model');
+		$this->import_model->delete_header_draft(TRUE);
 		$this->load->library('authbc');
 		$this->authbc->logout();
 	}

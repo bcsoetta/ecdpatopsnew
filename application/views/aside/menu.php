@@ -99,13 +99,73 @@
                                         <span class="menu-text">VALAS - Keberangkatan</span>
                                     </a>
                                 </li>
-                                <li class="menu-item <?= ($menuActive == 4) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
-                                    <a href="<?=base_url('import')?>" class="menu-link">
+                                <li class="menu-item menu-item-submenu <?= ($menuActive == 4 || $menuActive == 8 || $menuActive == 9 || $menuActive == 10 || $menuActive == 11) ? 'menu-item-open' : '';  ?>" aria-haspopup="true" data-menu-toggle="hover">
+                                    <a href="javascript:;" class="menu-link menu-toggle">
                                         <i class="menu-bullet menu-bullet-dot">
                                             <span></span>
                                         </i>
                                         <span class="menu-text">Impor Sementara</span>
+                                        <i class="menu-arrow"></i>
                                     </a>
+                                    <div class="menu-submenu">
+                                        <i class="menu-arrow"></i>
+                                        <ul class="menu-subnav">
+                                            <li class="menu-item <?= ($menuActive == 4) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
+                                                <a href="<?=base_url('import')?>" class="menu-link">
+                                                    <i class="menu-bullet menu-bullet-dot">
+                                                        <span></span>
+                                                    </i>
+                                                    <span class="menu-text">Dokumen</span>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item <?= ($menuActive == 8) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
+                                                <a href="<?=base_url('import/monitoring')?>" class="menu-link">
+                                                    <i class="menu-bullet menu-bullet-dot">
+                                                        <span></span>
+                                                    </i>
+                                                    <span class="menu-text">Monitoring</span>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item menu-item-submenu <?= ($menuActive == 9 || $menuActive == 10 || $menuActive == 11) ? 'menu-item-open' : '';  ?>" aria-haspopup="true" data-menu-toggle="hover">
+                                                <a href="javascript:;" class="menu-link menu-toggle">
+                                                    <i class="menu-bullet menu-bullet-dot">
+                                                        <span></span>
+                                                    </i>
+                                                    <span class="menu-text">Setting</span>
+                                                    <i class="menu-arrow"></i>
+                                                </a>
+                                                <div class="menu-submenu">
+                                                    <i class="menu-arrow"></i>
+                                                    <ul class="menu-subnav">
+                                                        <li class="menu-item <?= ($menuActive == 9) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
+                                                            <a href="<?=base_url('import/setting')?>" class="menu-link">
+                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                    <span></span>
+                                                                </i>
+                                                                <span class="menu-text">SMTP Email</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="menu-item <?= ($menuActive == 10) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
+                                                            <a href="<?=base_url('import/setting_template')?>" class="menu-link">
+                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                    <span></span>
+                                                                </i>
+                                                                <span class="menu-text">Format/Template Notifikasi</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="menu-item <?= ($menuActive == 11) ? 'menu-item-active' : '';  ?>" aria-haspopup="true">
+                                                            <a href="<?=base_url('import/setting_log')?>" class="menu-link">
+                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                    <span></span>
+                                                                </i>
+                                                                <span class="menu-text">Log Notifikasi</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </li>
                                 <li class="menu-item menu-item-submenu <?= ($menuActive == 5 || $menuActive == 6 || $menuActive == 7) ? 'menu-item-open' : '';  ?>" aria-haspopup="true" data-menu-toggle="hover">
                                     <a href="javascript:;" class="menu-link menu-toggle">

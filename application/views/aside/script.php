@@ -23,3 +23,75 @@
             <script src="<?=base_url('assets/js/pages/crud/datatables/data-sources/ajax-server-side.js'); ?>"></script>
             <script src="<?=base_url('assets/js/pages/widgets.js'); ?>"></script>
             <script src="<?=base_url('assets/js/pages/crud/file-upload/image-input.js'); ?>"></script>
+
+            <?php
+            $sessTtl = (int) $this->config->item('sess_expiration');
+            if ($sessTtl < 60) {
+                $sessTtl = 7200;
+            }
+            $sessWarn = 300;
+            $sessTestMode = false;
+            ?>
+            <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title text-dark font-weight-bold">Session Hampir Berakhir</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-3">
+                                Anda tidak aktif terlalu lama. Session akan berakhir dalam
+                                <strong id="sessionTimeoutCountdown">05:00</strong>.
+                            </p>
+                            <div class="progress" style="height: 8px;">
+                                <div id="sessionTimeoutBar" class="progress-bar bg-warning" role="progressbar" style="width: 100%;"></div>
+                            </div>
+                            <p class="text-muted mt-3 mb-0">Klik <strong>Lanjutkan</strong> untuk tetap masuk, atau <strong>Keluar</strong> untuk logout sekarang.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light-danger" id="btnSessionLogout">Keluar</button>
+                            <button type="button" class="btn btn-primary" id="btnSessionContinue">Lanjutkan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sessionTimeoutBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:20001;background:#FFA800;color:#181C32;padding:12px 16px;text-align:center;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.2);">
+                Session hampir berakhir: <span id="sessionTimeoutBannerCount">05:00</span>
+                &nbsp; <button type="button" class="btn btn-sm btn-dark" id="btnSessionContinueBanner">Lanjutkan</button>
+            </div>
+            <script>
+                window.PATOPS_SESSION = {
+                    pingUrl: <?= json_encode(base_url('home/session_ping')); ?>,
+                    logoutUrl: <?= json_encode(base_url('user/logout')); ?>,
+                    ttl: <?= (int) $sessTtl; ?>,
+                    warnBefore: <?= (int) $sessWarn; ?>,
+                    testMode: <?= $sessTestMode ? 'true' : 'false'; ?>
+                };
+            </script>
+            <script src="<?=base_url('assets/js/app.session.js'); ?>?v=20260916g"></script>
+            <script>
+                (function($) {
+                    function syncBanner() {
+                        if (!window.PATOPSSessionGuard) return;
+                        var rem = window.PATOPSSessionGuard.localRemaining();
+                        if (rem <= window.PATOPSSessionGuard.warnBefore && rem > 0) {
+                            $('#sessionTimeoutBanner').show();
+                            $('#sessionTimeoutBannerCount').text(window.PATOPSSessionGuard.formatTime(rem));
+                            $('#sessionTimeoutCountdown').text(window.PATOPSSessionGuard.formatTime(rem));
+                        } else if (rem > window.PATOPSSessionGuard.warnBefore) {
+                            $('#sessionTimeoutBanner').hide();
+                        }
+                    }
+                    $(function() {
+                        $('#sessionTimeoutBanner').appendTo('body');
+                        $('#sessionTimeoutModal').appendTo('body');
+                        $('#btnSessionContinueBanner').on('click', function() {
+                            if (window.PATOPSSessionGuard) {
+                                window.PATOPSSessionGuard.keepAlive();
+                                $('#sessionTimeoutBanner').hide();
+                            }
+                        });
+                        setInterval(syncBanner, 1000);
+                    });
+                })(jQuery);
+            </script>

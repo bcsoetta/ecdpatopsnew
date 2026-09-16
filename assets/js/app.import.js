@@ -6,6 +6,8 @@
             dateUntil: '',
             docNumber: '',
             confirmSave: 0,
+            currentTab: 1,
+            maxReachedTab: 1,
             dataPost: {
                 personal: {},
                 items: [],
@@ -20,25 +22,88 @@
             pph: 0,
             ppnbm: 0,
             fine: 0,
-            total: 0
+            total: 0,
+            emailValidated: false,
+            emailValidatedValue: ''
         },
         setIdr: function(value) {
             var output = value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
             return output;
         },
         unsetIdr: function(value) {
-            newValue = value.split('.').join('');
+            if (value === undefined || value === null) return '0';
+            newValue = value.toString().split('.').join('');
             return newValue;
         },
+        toNumber: function(value) {
+            var n = parseFloat(Import.unsetIdr(value));
+            return isFinite(n) ? n : 0;
+        },
+        pctNumber: function(value) {
+            if (value === undefined || value === null || value === '') return 0;
+            var n = parseFloat(String(value).replace(',', '.'));
+            return isFinite(n) ? n : 0;
+        },
+        recalcItem: function() {
+            var fob = Import.pctNumber($('#itemFob').val());
+            var freight = Import.pctNumber($('#itemFreight').val());
+            var insurance = Import.pctNumber($('#itemInsurance').val());
+            var kurs = Import.pctNumber($('#itemKurs').val());
+            var cif = fob + freight + insurance;
+            var pabean = Math.round(cif * kurs);
+            if (!isFinite(pabean) || pabean < 0) {
+                pabean = 0;
+            }
+
+            $('#itemCif').val(cif);
+            $('#itemValue').val(Import.setIdr(pabean));
+            Import.recalcPungutan();
+        },
+        recalcPungutan: function() {
+            var pabean = Import.toNumber($('#itemValue').val());
+            var bmPct = 10;
+            $('#itemPabeanIn').val('10');
+            var ppnPct = Import.pctNumber($('#itemPpn').val());
+            var ppnbmPct = Import.pctNumber($('#itemPpnbm').val());
+            var pphPct = Import.pctNumber($('#itemPph').val());
+            var finePct = Import.pctNumber($('#itemFine').val());
+
+            var bmIdr = Math.ceil(((pabean * bmPct) / 100) / 1000) * 1000;
+            if (!isFinite(bmIdr)) bmIdr = 0;
+            var ppnIdr = Math.ceil((((pabean + bmIdr) * ppnPct) / 100) / 1000) * 1000;
+            if (!isFinite(ppnIdr)) ppnIdr = 0;
+            var ppnbmIdr = Math.ceil((((pabean + bmIdr) * ppnbmPct) / 100) / 1000) * 1000;
+            if (!isFinite(ppnbmIdr)) ppnbmIdr = 0;
+            var pphIdr = Math.ceil((((pabean + bmIdr) * pphPct) / 100) / 1000) * 1000;
+            if (!isFinite(pphIdr)) pphIdr = 0;
+            var fineIdr = (bmIdr * finePct) / 100;
+            if (!isFinite(fineIdr)) fineIdr = 0;
+
+            $('#itemPabeanInIDR').val(Import.setIdr(bmIdr));
+            $('#itemPpnIDR').val(Import.setIdr(ppnIdr));
+            $('#itemPpnbmIDR').val(Import.setIdr(ppnbmIdr));
+            $('#itemPphIDR').val(Import.setIdr(pphIdr));
+            $('#itemFineIDR').val(Import.setIdr(fineIdr));
+            $('#itemTotalCollect').val(Import.setIdr(bmIdr + ppnIdr + ppnbmIdr + pphIdr + fineIdr));
+        },
         resetForm: function() {
-            $(this).prop('checked', false);
-            var newForm = $('form[name="newForm"]');
-            newForm.find('input[type=text], textarea').val('');
-            // newForm.find('[name="identityType"], [name="returnGuarantee"]').prop('checked', false);
+            var modal = $('#newModal');
+            modal.find('input[type=text], input[type=email], textarea').val('');
+            modal.find('input[type=radio]').prop('checked', false);
+            modal.find('#periode').val('90');
+            modal.find('#airportIn, #airportOut').val('143');
             $('table[name="importTable"]').find('tbody').empty();
-            var guaranteeForm = $('form[name="guaranteeForm"]');
-            guaranteeForm.find('input[type=text], textarea').val('');
-            // guaranteeForm.find('[name="guaranteeType"]').prop('checked', false);
+            $('table[name="reviewCreateItems"]').find('tbody').empty();
+
+            Import.params.bm = 0;
+            Import.params.ppn = 0;
+            Import.params.pph = 0;
+            Import.params.ppnbm = 0;
+            Import.params.fine = 0;
+            Import.params.total = 0;
+            Import.params.currentTab = 1;
+            Import.params.maxReachedTab = 1;
+            Import.params.confirmSave = 0;
 
             var summaryTable = $('table[name="importSummaryTable"]');
             summaryTable.find('[view="summBM"]').html(Import.setIdr(Import.params.bm));
@@ -47,6 +112,399 @@
             summaryTable.find('[view="summPpnbm"]').html(Import.setIdr(Import.params.ppnbm));
             summaryTable.find('[view="summFine"]').html(Import.setIdr(Import.params.fine));
             summaryTable.find('[view="summTotal"]').html(Import.setIdr(Import.params.total));
+            modal.find('input[name=guaranteeNominal]').val('');
+            Import.params.emailValidated = false;
+            Import.params.emailValidatedValue = '';
+            $('#emailValidateMsg').text('').removeClass('text-success text-danger');
+            Import.showTab(1);
+        },
+        saveDraft: function() {
+            if (!Import.params.keyHeaderPost) {
+                return;
+            }
+            $.ajax({
+                url: Import.basePath() + '/import/save_draft',
+                type: 'post',
+                dataType: 'json',
+                data: JSON.stringify({
+                    keyHeader: Import.params.keyHeaderPost,
+                    currentTab: Import.params.currentTab,
+                    payload: {
+                        personal: Import.collectPersonal(),
+                        guarantee: Import.collectGuarantee(),
+                        emailValidated: Import.params.emailValidated,
+                        emailValidatedValue: Import.params.emailValidatedValue,
+                        maxReachedTab: Import.params.maxReachedTab
+                    }
+                })
+            });
+        },
+        fillForm: function(personal, guarantee) {
+            var modal = $('#newModal');
+            personal = personal || {};
+            guarantee = guarantee || {};
+            if (personal.identityType) {
+                modal.find('input[name=identityType][value="' + personal.identityType + '"]').prop('checked', true).trigger('change');
+            }
+            modal.find('input[name=name]').val(personal.name || '');
+            modal.find('textarea[name=address]').val(personal.address || '');
+            modal.find('input[name=identity]').val(personal.identity || '');
+            modal.find('input[name=pemberitahuEmail]').val(personal.email || '');
+            modal.find('input[name=sponsName]').val(personal.sponsName || '');
+            modal.find('input[name=sponsNik]').val(personal.sponsNik || '');
+            modal.find('input[name=sponsLocation]').val(personal.sponsLocation || '');
+            modal.find('input[name=sponsReason]').val(personal.sponsReason || '');
+            modal.find('textarea[name=sponsAddress]').val(personal.sponsAddress || '');
+            modal.find('input[name=sponsPhone]').val(personal.sponsPhone || '');
+            if (personal.returnGuarantee) {
+                modal.find('input[name=returnGuarantee][value="' + personal.returnGuarantee + '"]').prop('checked', true);
+                Import.toggleAccountSection();
+            }
+            modal.find('select[name=airportIn]').val(personal.airportIn || '143');
+            modal.find('select[name=airportOut]').val(personal.airportOut || '143');
+            modal.find('input[name=invDate]').val(personal.invDate || '');
+            modal.find('input[name=invNumber]').val(personal.invNumber || '');
+            modal.find('input[name=carrierName]').val(personal.carrierName || '');
+            modal.find('input[name=invDateOut]').val(personal.invDateOut || '');
+            modal.find('input[name=periode]').val(personal.periode || '90');
+            modal.find('input[name=accountNumber]').val(personal.accountNumber || '');
+            modal.find('input[name=accountName]').val(personal.accountName || '');
+            modal.find('input[name=accountBank]').val(personal.accountBank || '');
+            if (guarantee.guaranteeType) {
+                modal.find('input[name=guaranteeType][value="' + guarantee.guaranteeType + '"]').prop('checked', true);
+            }
+            modal.find('input[name=guaranteeNominal]').val(guarantee.guaranteeNominal || '');
+            modal.find('input[name=source]').val(guarantee.source || '');
+            modal.find('input[name=sourceNumber]').val(guarantee.sourceNumber || '');
+            modal.find('input[name=sourceDate]').val(guarantee.sourceDate || '');
+            modal.find('input[name=treasurerName]').val(guarantee.treasurerName || '');
+            modal.find('input[name=treasurerNip]').val(guarantee.treasurerNip || '');
+        },
+        applyDraft: function(draft) {
+            Import.resetForm();
+            Import.params.keyHeaderPost = draft.keyHeader;
+            Import.params.dataPost = {
+                personal: (draft.payload && draft.payload.personal) ? draft.payload.personal : {},
+                items: [],
+                guarantee: (draft.payload && draft.payload.guarantee) ? draft.payload.guarantee : {}
+            };
+            Import.fillForm(Import.params.dataPost.personal, Import.params.dataPost.guarantee);
+            Import.params.emailValidated = !!(draft.payload && draft.payload.emailValidated);
+            Import.params.emailValidatedValue = (draft.payload && draft.payload.emailValidatedValue) ? draft.payload.emailValidatedValue : '';
+            if (Import.params.emailValidated && Import.params.emailValidatedValue) {
+                Import.setEmailMsg('Email sudah divalidasi.', true);
+            }
+            Import.params.maxReachedTab = (draft.payload && draft.payload.maxReachedTab) ? parseInt(draft.payload.maxReachedTab, 10) : 1;
+            if (draft.items && draft.items.length) {
+                Import.renderItemTemp(draft.items);
+            }
+            var tab = parseInt(draft.currentTab, 10) || 1;
+            if (tab > Import.params.maxReachedTab) {
+                Import.params.maxReachedTab = tab;
+            }
+            Import.showTab(tab);
+        },
+        openCreateModal: function() {
+            $.ajax({
+                url: Import.basePath() + '/import/get_draft',
+                type: 'post',
+                dataType: 'json',
+                data: JSON.stringify({})
+            }).done(function(result) {
+                if (result && result.status && result.draft && result.draft.keyHeader) {
+                    Import.applyDraft(result.draft);
+                } else {
+                    Import.params.dataPost = { personal: {}, items: [], guarantee: {} };
+                    Import.params.keyHeaderPost = Import.generateKey();
+                    Import.resetForm();
+                }
+                $('#newModal').modal('show');
+                Import.saveDraft();
+            }).fail(function() {
+                Import.params.dataPost = { personal: {}, items: [], guarantee: {} };
+                Import.params.keyHeaderPost = Import.generateKey();
+                Import.resetForm();
+                $('#newModal').modal('show');
+            });
+        },
+        lookupLabel: function(map, key) {
+            return map[key] || '-';
+        },
+        basePath: function() {
+            var path = window.location.pathname;
+            var idx = path.toLowerCase().indexOf('/import');
+            return (idx >= 0) ? path.substring(0, idx) : '';
+        },
+        setEmailMsg: function(text, ok) {
+            var $msg = $('#emailValidateMsg');
+            $msg.removeClass('text-success text-danger');
+            $msg.addClass(ok ? 'text-success' : 'text-danger');
+            $msg.text(text || '');
+        },
+        validateEmail: function() {
+            var email = $.trim($('#pemberitahuEmail').val());
+            if (!email) {
+                Import.params.emailValidated = false;
+                Import.setEmailMsg('Isi email terlebih dahulu.', false);
+                return;
+            }
+            var $btn = $('#btnValidateEmail');
+            $btn.attr('disabled', 'disabled');
+            Import.setEmailMsg('Memeriksa email...', false);
+            $.ajax({
+                url: Import.basePath() + '/import/validate_email',
+                type: 'post',
+                dataType: 'json',
+                data: JSON.stringify({ email: email })
+            }).done(function(result) {
+                if (result && result.status) {
+                    Import.params.emailValidated = true;
+                    Import.params.emailValidatedValue = email;
+                    Import.setEmailMsg(result.message || 'Email valid.', true);
+                } else {
+                    Import.params.emailValidated = false;
+                    Import.params.emailValidatedValue = '';
+                    Import.setEmailMsg((result && result.message) ? result.message : 'Email tidak valid.', false);
+                }
+            }).fail(function() {
+                Import.params.emailValidated = false;
+                Import.params.emailValidatedValue = '';
+                Import.setEmailMsg('Gagal memvalidasi email. Coba lagi.', false);
+            }).always(function() {
+                $btn.removeAttr('disabled');
+            });
+        },
+        collectPersonal: function() {
+            var modal = $('#newModal');
+            return {
+                identityType: modal.find('input[name=identityType]:checked').val(),
+                name: modal.find('input[name=name]').val(),
+                address: modal.find('textarea[name=address]').val(),
+                identity: modal.find('input[name=identity]').val(),
+                email: $.trim(modal.find('input[name=pemberitahuEmail]').val()),
+                sponsName: modal.find('input[name=sponsName]').val(),
+                sponsNik: modal.find('input[name=sponsNik]').val(),
+                sponsLocation: modal.find('input[name=sponsLocation]').val(),
+                sponsReason: modal.find('input[name=sponsReason]').val(),
+                sponsAddress: modal.find('textarea[name=sponsAddress]').val(),
+                sponsPhone: modal.find('input[name=sponsPhone]').val(),
+                returnGuarantee: modal.find('input[name=returnGuarantee]:checked').val(),
+                airportIn: modal.find('select[name=airportIn]').val() ? modal.find('select[name=airportIn]').val() : 143,
+                invDate: modal.find('input[name=invDate]').val(),
+                invNumber: modal.find('input[name=invNumber]').val(),
+                carrierName: modal.find('input[name=carrierName]').val(),
+                airportOut: modal.find('select[name=airportOut]').val() ? modal.find('select[name=airportOut]').val() : 143,
+                invDateOut: modal.find('input[name=invDateOut]').val(),
+                periode: modal.find('input[name=periode]').val(),
+                accountNumber: modal.find('input[name=accountNumber]').val(),
+                accountName: modal.find('input[name=accountName]').val(),
+                accountBank: modal.find('input[name=accountBank]').val()
+            };
+        },
+        collectGuarantee: function() {
+            var modal = $('#newModal');
+            return {
+                guaranteeType: modal.find('input[name=guaranteeType]:checked').val(),
+                guaranteeName: '',
+                guaranteeAddress: '',
+                guaranteeNominal: modal.find('input[name=guaranteeNominal]').val(),
+                source: modal.find('input[name=source]').val(),
+                sourceNumber: modal.find('input[name=sourceNumber]').val(),
+                sourceDate: modal.find('input[name=sourceDate]').val(),
+                treasurerName: modal.find('input[name=treasurerName]').val(),
+                treasurerNip: modal.find('input[name=treasurerNip]').val()
+            };
+        },
+        validateTab: function(tab) {
+            var modal = $('#newModal');
+            if (tab == 1) {
+                if (!modal.find('input[name=identityType]:checked').val()) {
+                    alert('Pilih jenis identitas');
+                    return false;
+                }
+                if (!$.trim(modal.find('input[name=name]').val())) {
+                    alert('Nama lengkap wajib diisi');
+                    return false;
+                }
+                if (!$.trim(modal.find('input[name=identity]').val())) {
+                    alert('Nomor identitas wajib diisi');
+                    return false;
+                }
+                var email = $.trim(modal.find('input[name=pemberitahuEmail]').val());
+                if (!email) {
+                    alert('Email wajib diisi');
+                    return false;
+                }
+                if (!Import.params.emailValidated || Import.params.emailValidatedValue !== email) {
+                    alert('Validasi email terlebih dahulu');
+                    return false;
+                }
+            }
+            if (tab == 2) {
+                if (!$.trim(modal.find('input[name=invDateOut]').val())) {
+                    alert('Perkiraan tanggal keluar wajib diisi');
+                    return false;
+                }
+                var periode = parseInt(modal.find('input[name=periode]').val(), 10);
+                if (!periode || periode < 1) {
+                    alert('Jangka waktu IS wajib diisi');
+                    return false;
+                }
+                if (periode > 90) {
+                    alert('Jangka waktu tidak boleh lebih dari 90 hari');
+                    return false;
+                }
+            }
+            if (tab == 3) {
+                if ($('table[name="importTable"]').find('tbody tr').length < 1) {
+                    alert('Minimal 1 barang harus ditambahkan');
+                    return false;
+                }
+            }
+            if (tab == 4) {
+                if (!modal.find('input[name=returnGuarantee]:checked').val()) {
+                    alert('Pilih cara pengembalian jaminan');
+                    return false;
+                }
+                if (modal.find('input[name=returnGuarantee]:checked').val() == '2') {
+                    if (!$.trim(modal.find('input[name=accountNumber]').val()) ||
+                        !$.trim(modal.find('input[name=accountName]').val()) ||
+                        !$.trim(modal.find('input[name=accountBank]').val())) {
+                        alert('Data rekening wajib diisi untuk pengembalian transfer bank');
+                        return false;
+                    }
+                }
+                if (!modal.find('input[name=guaranteeType]:checked').val()) {
+                    alert('Pilih bentuk jaminan');
+                    return false;
+                }
+            }
+            return true;
+        },
+        populateReview: function() {
+            var modal = $('#newModal');
+            var personal = Import.collectPersonal();
+            var guarantee = Import.collectGuarantee();
+            Import.params.dataPost.personal = personal;
+            Import.params.dataPost.guarantee = guarantee;
+
+            var identityMap = { '1': 'NPWP', '2': 'KTP', '3': 'Paspor' };
+            var returnMap = { '1': 'Diambil sendiri', '2': 'Transfer bank', '3': 'Sponsor' };
+            var guaranteeMap = { '1': 'Tunai', '2': 'Bank', '3': 'Customs Bond', '4': 'Lainnya' };
+
+            modal.find('[view="revIdentityType"]').html(Import.lookupLabel(identityMap, personal.identityType));
+            modal.find('[view="revIdentity"]').html(personal.identity || '-');
+            modal.find('[view="revName"]').html(personal.name || '-');
+            modal.find('[view="revAddress"]').html(personal.address || '-');
+            modal.find('[view="revEmail"]').html(personal.email || '-');
+            modal.find('[view="revAirportIn"]').html(modal.find('#airportIn option:selected').text());
+            modal.find('[view="revAirportOut"]').html(modal.find('#airportOut option:selected').text());
+            modal.find('[view="revInvoice"]').html((personal.invNumber || '-') + ' / ' + (personal.invDate || '-'));
+            modal.find('[view="revCarrier"]').html(personal.carrierName || '-');
+            modal.find('[view="revPeriode"]').html((personal.invDateOut || '-') + ' / ' + (personal.periode || '-') + ' hari');
+            modal.find('[view="revSponsor"]').html(personal.sponsName || '-');
+            modal.find('[view="revUse"]').html((personal.sponsLocation || '-') + ' / ' + (personal.sponsReason || '-'));
+            modal.find('[view="revReturnType"]').html(Import.lookupLabel(returnMap, personal.returnGuarantee));
+            modal.find('[view="revAccount"]').html(
+                personal.accountNumber
+                    ? (personal.accountNumber + ' a.n. ' + (personal.accountName || '-') + ' (' + (personal.accountBank || '-') + ')')
+                    : '-'
+            );
+            modal.find('[view="revGuaranteeType"]').html(Import.lookupLabel(guaranteeMap, guarantee.guaranteeType));
+            modal.find('[view="revGuaranteeNominal"]').html(Import.setIdr(Import.params.total));
+            modal.find('[view="revTreasurer"]').html(
+                guarantee.treasurerName
+                    ? (guarantee.treasurerName + ' / ' + (guarantee.treasurerNip || '-'))
+                    : '-'
+            );
+
+            modal.find('[view="revSummBM"]').html(Import.setIdr(Import.params.bm));
+            modal.find('[view="revSummPpn"]').html(Import.setIdr(Import.params.ppn));
+            modal.find('[view="revSummPph"]').html(Import.setIdr(Import.params.pph));
+            modal.find('[view="revSummPpnbm"]').html(Import.setIdr(Import.params.ppnbm));
+            modal.find('[view="revSummFine"]').html(Import.setIdr(Import.params.fine));
+            modal.find('[view="revSummTotal"]').html(Import.setIdr(Import.params.total));
+
+            var reviewBody = $('table[name="reviewCreateItems"]').find('tbody').empty();
+            $('table[name="importTable"]').find('tbody tr').each(function() {
+                var row = $(this);
+                reviewBody.append(
+                    '<tr>' +
+                        '<td>' + row.find('[view="imName"]').html() + '</td>' +
+                        '<td>' + row.find('[view="imQty"]').html() + '</td>' +
+                        '<td>' + row.find('[view="imHscode"]').html() + '</td>' +
+                        '<td>' + row.find('[view="imPabean"]').html() + '</td>' +
+                        '<td>' + row.find('[view="imCollect"]').html() + '</td>' +
+                    '</tr>'
+                );
+            });
+        },
+        showTab: function(tab) {
+            var modal = $('#newModal');
+            tab = parseInt(tab, 10) || 1;
+            Import.params.currentTab = tab;
+            if (tab > Import.params.maxReachedTab) {
+                Import.params.maxReachedTab = tab;
+            }
+
+            modal.find('[data-tab-pane]').addClass('d-none').removeClass('active show');
+            modal.find('[data-tab-pane="' + tab + '"]').removeClass('d-none').addClass('active');
+            modal.find('#isWizardTabs .nav-link').removeClass('active');
+            modal.find('#isWizardTabs .nav-link[data-tab="' + tab + '"]').addClass('active');
+
+            if (tab == 1) {
+                modal.find('#btnPrevTab').addClass('d-none');
+            } else {
+                modal.find('#btnPrevTab').removeClass('d-none');
+            }
+            if (tab == 5) {
+                modal.find('#btnNextTab').addClass('d-none');
+                modal.find('#btnSaveImport').removeClass('d-none');
+                Import.populateReview();
+            } else {
+                modal.find('#btnNextTab').removeClass('d-none');
+                modal.find('#btnSaveImport').addClass('d-none');
+            }
+            if (tab == 2 && $.fn.selectpicker) {
+                setTimeout(function() {
+                    try {
+                        var inVal = modal.find('#airportIn').val() || '143';
+                        var outVal = modal.find('#airportOut').val() || '143';
+                        modal.find('#airportIn').selectpicker('val', inVal);
+                        modal.find('#airportOut').selectpicker('val', outVal);
+                        modal.find('#airportIn, #airportOut').selectpicker('refresh');
+                    } catch (err) {}
+                }, 150);
+            }
+        },
+        goNextTab: function(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            var tab = parseInt(Import.params.currentTab, 10) || 1;
+            if (!Import.validateTab(tab)) {
+                return;
+            }
+            if (tab == 1 || tab == 2 || tab == 4) {
+                Import.params.dataPost.personal = Import.collectPersonal();
+                Import.params.dataPost.guarantee = Import.collectGuarantee();
+            }
+            Import.saveDraft();
+            if (tab < 5) {
+                Import.showTab(tab + 1);
+            }
+        },
+        goPrevTab: function() {
+            if (Import.params.currentTab > 1) {
+                Import.showTab(Import.params.currentTab - 1);
+                Import.saveDraft();
+            }
+        },
+        toggleAccountSection: function() {
+            var value = $('#newModal').find('input[name=returnGuarantee]:checked').val();
+            if (value == '2') {
+                $('#wizardAccountSection').removeClass('d-none');
+            }
         },
         enabled: function(formName, value) {
             if (value) $('form[name="'+formName+'"]').find('[name^="search"], button').removeAttr('disabled');
@@ -104,9 +562,12 @@
             summaryTable.find('[view="summPpnbm"]').html(Import.setIdr(Import.params.ppnbm));
             summaryTable.find('[view="summFine"]').html(Import.setIdr(Import.params.fine));
             summaryTable.find('[view="summTotal"]').html(Import.setIdr(Import.params.total));
-            $('form[name="guaranteeForm"]').find('input[name=guaranteeNominal]').val(Import.params.total);
+            $('#newModal').find('input[name=guaranteeNominal]').val(Import.params.total);
         },
-        removeItemTemp: function() {
+        removeItemTemp: function(e) {
+            if (e) {
+                e.preventDefault();
+            }
             var row = $(this).closest('tr'),
             data = row.attr('id');
             var params = { params: {
@@ -120,6 +581,7 @@
                 data: JSON.stringify(params)
             }).done(function(result) {
                 Import.renderItemTemp(result.data);
+                Import.saveDraft();
             }).fail(function() {
                 alert('terjadi kesalahan, coba lagi nanti..');
             });
@@ -364,7 +826,9 @@
         clearContent: function() {
         },
         createNew: function() {
-            Import.enabled('guaranteeForm', false);
+            Import.params.dataPost.personal = Import.collectPersonal();
+            Import.params.dataPost.guarantee = Import.collectGuarantee();
+            $('#btnSaveImport').attr('disabled', 'disabled');
             var params = {
                 params: Import.params.dataPost,
                 keys: {
@@ -380,19 +844,17 @@
                 data: JSON.stringify(params)
             }).done(function(result) {
                 if (result) {
-                    // action after save
                     alert('Data berhasil disimpan..');
                     Import.params.confirmSave = 0;
-                    $('#guaranteeModal').modal('hide');
-                    Import.params.confirmSave = 0;
+                    Import.params.keyHeaderPost = '';
+                    $('#newModal').modal('hide');
                     Import.doSearch();
-                    // clear all content
-                    Import.clearContent();
+                    Import.resetForm();
                 }
             }).fail(function() {
                 alert('terjadi kesalahan, coba lagi nanti..');
             }).always(function() {
-                Import.enabled('guaranteeForm', true);
+                $('#btnSaveImport').removeAttr('disabled');
             });
         },
         uploadItems: function(data) {
@@ -480,81 +942,72 @@
              */
             Import.doSearch();
 
-            $('form[name="guaranteeForm"]').on('submit', function() {
-                // $(this).find('input[name=guaranteeNominal]' ).val(Import.params.total);
-            
-                // mapping data
-                var guarantee = {
-                    guaranteeType: $(this).find('input[name=guaranteeType]:checked').val(),
-                    guaranteeName: $(this).find('input[name=guaranteeName]').val(),
-                    guaranteeAddress: $(this).find('textarea[name=guaranteeAddress]' ).val(),
-                    guaranteeNominal: $(this).find('input[name=guaranteeNominal]').val(),
-                    source: $(this).find('input[name=source]').val(),
-                    sourceNumber: $(this).find('input[name=sourceNumber]').val(),
-                    sourceDate: $(this).find('input[name=sourceDate]').val(),
-                    treasurerName: $(this).find('input[name=treasurerName]').val(),
-                    treasurerNip: $(this).find('input[name=treasurerNip]').val()
-                };
-                // console.log(guarantee); return false;
-                Import.params.dataPost.guarantee = guarantee;
-                // confirm first then create
-                if (Import.params.confirmSave == 0) {
-                    $('#confirmModal').modal('show');  
-                } else {
-                    Import.createNew();
+            setInterval(function() {
+                if ($('#newModal').hasClass('show')) {
+                    Import.saveDraft();
                 }
-                return false;
+            }, 40000);
+
+            $('#btnNextTab').on('click', Import.goNextTab);
+            $('#btnPrevTab').on('click', Import.goPrevTab);
+            $('#btnSaveImport').on('click', function() {
+                var tabs = [1, 2, 3, 4];
+                for (var i = 0; i < tabs.length; i++) {
+                    if (!Import.validateTab(tabs[i])) {
+                        Import.showTab(tabs[i]);
+                        return;
+                    }
+                }
+                Import.createNew();
             });
 
-            $('button[name="confirmYes"]').on('click', function() {
-                // reset value
-                Import.params.bm = 0;
-                Import.params.ppn = 0;
-                Import.params.pph = 0;
-                Import.params.ppnbm = 0;
-                Import.params.total = 0;
-                Import.params.fine = 0;
-
-                // show previous page
-                $('#confirmModal').modal('hide');
-                $('#guaranteeModal').modal('hide');
-                $('#newModal').modal('show');
-                
-                Import.params.confirmSave = 1;
+            $('#isWizardTabs .nav-link').on('click', function(e) {
+                e.preventDefault();
+                var target = parseInt($(this).attr('data-tab'), 10);
+                var current = parseInt(Import.params.currentTab, 10) || 1;
+                if (target == current) {
+                    return;
+                }
+                if (target < current) {
+                    Import.showTab(target);
+                    Import.saveDraft();
+                    return;
+                }
+                if (target > current + 1 && target > Import.params.maxReachedTab) {
+                    alert('Lengkapi tab sebelumnya terlebih dahulu');
+                    return;
+                }
+                if (!Import.validateTab(current)) {
+                    return;
+                }
+                Import.showTab(target);
+                Import.saveDraft();
             });
 
-            $('form[name="newForm"]').on('submit', function() {
-                // save data to params
-                var personal = {
-                    identityType: $(this).find('input[name=identityType]:checked' ).val(),
-                    name : $(this).find('input[name=name]' ).val(),
-                    address : $(this).find('textarea[name=address]').val(),
-                    identity : $(this).find('input[name=identity]').val(),
-                    sponsName : $(this).find('input[name=sponsName]').val(),
-                    sponsNik : $(this).find('input[name=sponsNik]').val(),
-                    sponsLocation : $(this).find('input[name=sponsLocation]' ).val(),
-                    sponsReason : $(this).find('input[name=sponsReason]').val(),
-                    sponsAddress : $(this).find('textarea[name=sponsAddress]').val(),
-                    sponsPhone : $(this).find('input[name=sponsPhone]').val(),
-                    returnGuarantee : $(this).find('input[name=returnGuarantee]:checked').val(),
-                    airportIn : ($(this).find('select[name=airportIn]').val()) ? $(this).find('select[name=airportIn]').val() : 143,
-                    invDate : $(this).find('input[name=invDate]').val(),
-                    invNumber : $(this).find('input[name=invNumber]').val(),
-                    carrierName : $(this).find('input[name=carrierName]').val(),
-                    airportOut : ($(this).find('select[name=airportOut]').val()) ? $(this).find('select[name=airportOut]').val() : 143,
-                    invDateOut : $(this).find('input[name=invDateOut]').val(),
-                    periode : $(this).find('input[name=periode]' ).val(),
-                    accountNumber : $(this).find('input[name=accountNumber]' ).val(),
-                    accountName : $(this).find('input[name=accountName]' ).val(),
-                    accountBank : $(this).find('input[name=accountBank]' ).val(),
+            $('#newModal').find('input[name=identityType]').on('change', function() {
+                var labels = { '1': 'Nomor NPWP', '2': 'Nomor KTP / NIK', '3': 'Nomor Paspor' };
+                $('#identityLabel').text(labels[$(this).val()] || 'Nomor Identitas');
+            });
+
+            $('#btnValidateEmail').on('click', Import.validateEmail);
+            $('#pemberitahuEmail').on('input change', function() {
+                var email = $.trim($(this).val());
+                if (email !== Import.params.emailValidatedValue) {
+                    Import.params.emailValidated = false;
+                    Import.setEmailMsg('', false);
                 }
+            });
 
-                Import.params.dataPost.personal = personal;
+            $('#newModal').find('input[name=returnGuarantee]').on('change', Import.toggleAccountSection);
 
-                // console.log(Import.params.dataPost);
-                $('#newModal').modal('hide');
-                $('#guaranteeModal').modal('show');
-                return false;
+            $('#addItemModal').on('shown.bs.modal', function() {
+                $(this).css('z-index', 1060);
+                $('.modal-backdrop').last().css('z-index', 1055);
+            });
+            $('#addItemModal').on('hidden.bs.modal', function() {
+                if ($('#newModal').hasClass('show')) {
+                    $('body').addClass('modal-open');
+                }
             });
 
             $('form[name="addItemForm"]').on('submit', function() {
@@ -576,29 +1029,19 @@
                     insurance = $(this).find('[name="itemInsurance"]').val(),
 
                     cif = $(this).find('[name="itemCif"]').val(),
-                    pabeanIn = $(this).find('[name="itemPabeanIn"]').val(),
                     ppn = $(this).find('[name="itemPpn"]').val(),
                     pph = $(this).find('[name="itemPph"]').val(),
                     ppnbm = $(this).find('[name="itemPpnbm"]').val(),
-                    fine = $(this).find('[name="itemFine"]').val(),
-                    free = $(this).find('[name="itemFree"]').val(),
-                    freeCurrency = $(this).find('[name="itemFreeCurrency"]').val(),
-                    freeCurrencyText = $(this).find('[name="itemFreeCurrency"] option:selected').text(),
-                    freeIDR = Import.unsetIdr($(this).find('[name="itemFreeIDR"]').val());
-                    // console.log(itemPackage);
-                    // return false;
-                    /**
-                     * new items that must be send to server
-                     */
-                     posCode = $(this).find('[name="itemPosCode"]').val();
+                    fine = $(this).find('[name="itemFine"]').val();
+                    posCode = $(this).find('[name="itemPosCode"]').val();
                      posDesc = $(this).find('[name="itemPosDesc"]').val();
 
                 var params = {
                     name: itemName, quantity : itemTotal, package: itemPackage, category: itemCategory, bruto: itemBruto,
                     currency: itemCurrencyText, kurs: itemCurrency, description: itemDescription,
                     fob: fob, freight: freight, insurance: insurance,
-                    cif: cif, pabeanIn: pabeanIn, ppn: ppn, pph: pph, ppnbm: ppnbm, fine: fine,
-                    freeIDR: freeIDR, free_value: free, free_currency: freeCurrencyText,
+                    cif: cif, pabeanIn: 10, ppn: ppn, pph: pph, ppnbm: ppnbm, fine: fine,
+                    freeIDR: 0, free_value: 0, free_currency: '',
                     keyHeader: Import.params.keyHeaderPost, keyItem: Import.params.keyItemPost,
                     posCode: posCode, posDesc: posDesc
                 };
@@ -642,6 +1085,7 @@
 
                         // get data from server then render it
                         Import.renderItemTemp(result.data);
+                        Import.saveDraft();
 
                         $('#addItemModal').modal('hide');
                     }
@@ -649,11 +1093,12 @@
                     alert('terjadi kesalahan, coba lagi nanti..');
                 }).always(function() {
                     $('#pleaseWaitDialog').modal('hide');
-                    $('body').removeClass('modal-open');
-                    $(".modal-backdrop").remove();
                     $('#pleaseWaitDialog').removeClass('show');
                     $('#pleaseWaitDialog').removeAttr('style');
                     $('form[name="addItemForm"]').find('button').removeAttr('disabled');
+                    if ($('#newModal').hasClass('show')) {
+                        $('body').addClass('modal-open');
+                    }
                 });
                 return false;
             });
@@ -661,31 +1106,31 @@
             $('#btnAddItem').on('click', function() {
                 var generator = Import.generateKey();
                 Import.params.keyItemPost = generator;
-
+                var itemForm = $('form[name="addItemForm"]');
+                itemForm.find('input[type=text], textarea, input[type=file]').val('');
+                itemForm.find('#itemFob, #itemFreight, #itemInsurance, #itemCif, #itemKurs, #itemValue').val('0');
+                itemForm.find('#itemPabeanIn').val('10');
+                itemForm.find('#itemPabeanInIDR, #itemPpn, #itemPpnIDR, #itemPphIDR, #itemPpnbm, #itemPpnbmIDR, #itemFine, #itemFineIDR').val('0');
+                itemForm.find('#itemPph').val('0');
+                itemForm.find('#itemTotalCollect, #itemPosCode, #itemPosDesc').val('');
+                itemForm.find('.selectpicker').selectpicker('val', '');
                 $('#addItemModal').modal('show');
+                Import.recalcItem();
             });
 
             $('.bc-date').datepicker({
                 todayHighlight: true,
+                autoclose: true,
                 orientation: "bottom left",
                 format: 'yyyy-mm-dd'
             });
 
             $('#add_valas').on('click', function() {
-                // reset
-                var dataPost = {
-                    personal: {},
-                    items: [],
-                    guarantee: {}
-                };
-                Import.params.dataPost = dataPost;
-                
-                // generate key
-                var generator = Import.generateKey();
-                Import.params.keyHeaderPost = generator;
-                // console.log(Import.params.keyPost);
-                Import.resetForm();
-                $('#newModal').modal('show');
+                Import.openCreateModal();
+            });
+
+            $('#newModal').on('hidden.bs.modal', function() {
+                Import.saveDraft();
             });
 
             $('form[name="searchValasForm"]').on('submit', function() {
@@ -703,15 +1148,7 @@
     
                 return false;
             });
-            
-            $('button[name="confirmYes"]').on('click', function() {
-                // show previous page
-                $('#confirmModal').modal('hide');
-                Import.params.confirmSave = 1;
-            });
     
-            // pagination
-            //nav function
             $('[name="next"]').on('click', function(){
                 Import.params.page = Import.params.page + 1;
                 Import.doSearch();
@@ -721,20 +1158,14 @@
                 Import.doSearch();
             });
             
-            // back function
-            $('form[name="guaranteeForm"]').find('#prepPage').on('click', function() {
-                $('#guaranteeModal').modal('hide');
-                $('#newModal').modal('show');
-            });
-            
             $('button[name="confirmDelete"]').on('click', function() {
                 Import.deleteDataServer();
             });
 
             // set kurs
             $('#itemCurrency').on('change', function() {
-                // set kurs value
-                $('#itemKurs').val($(this).val());
+                $('#itemKurs').val($(this).val() || 0);
+                Import.recalcItem();
             });
 
             /*$('#itemCode').bind('input propertychange', function() {
@@ -768,88 +1199,39 @@
             });
 
             $('#itemCode').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) { 
-                /**
-                 * get code and name
-                 */
                 var pos_code = $('#itemCode option:selected').attr('raw_code');
                 var pos_desc = $('#itemCode option:selected').attr('uraian');
-                /**
-                 * set code to hidden input
-                 */
-                 $('#itemPosCode').val(pos_code);
-                 $('#itemPosDesc').val(pos_desc);
-                 
-                // pabean value = nilai pabean - pembebasan
-                var bm = $('#itemCode option:selected').attr('bm_tarif'),
-                ppn = $('#itemCode option:selected').attr('ppn_tarif'),
-                ppnbm = $('#itemCode option:selected').attr('ppnbm_tarif'),
-                pabean_value = parseFloat(Import.unsetIdr($('#itemValue').val()));
-                // pph = parseFloat($('#itemPph').val());
-                
-                // set label from server
-                $('#itemPabeanIn').val(bm);
-                $('#itemPpn').val(ppn);
-                // convert idr
-                var roundUpBea = Math.ceil(((bm * parseInt(pabean_value)) / 100)/1000);
-                var beaIDR = roundUpBea * 1000;
-                $('#itemPabeanInIDR').val(Import.setIdr(beaIDR));
-                var roundUpPpn = Math.ceil((((pabean_value + beaIDR) * ppn) / 100) / 1000);
-                var ppnIDR = roundUpPpn * 1000;
-                // console.log(pabean_value + beaIDR);
-                $('#itemPpnIDR').val(Import.setIdr(ppnIDR));
-                var roundUpPpnbm = Math.ceil((((pabean_value + beaIDR) * ppnbm) / 100) / 1000);
-                var ppnbmIDR = roundUpPpnbm * 1000;
-                $('#itemPpnbmIDR').val(Import.setIdr(ppnbmIDR));
-                
-                var totalCollect = beaIDR + ppnIDR + ppnbmIDR;
-                $('#itemTotalCollect').val(Import.setIdr(totalCollect));
+                $('#itemPosCode').val(pos_code);
+                $('#itemPosDesc').val(pos_desc);
+
+                var bm = $('#itemCode option:selected').attr('bm_tarif');
+                var ppn = $('#itemCode option:selected').attr('ppn_tarif');
+                var ppnbm = $('#itemCode option:selected').attr('ppnbm_tarif');
+
+                $('#itemPabeanIn').val('10');
+                $('#itemPpn').val(ppn || 0);
+                $('#itemPpnbm').val(ppnbm || 0);
+                Import.recalcItem();
             });
 
-            $('#itemPph, #itemFine, #itemPpnbm').on('keyup', function(){
-                var bm = parseInt(Import.unsetIdr($('#itemPabeanInIDR').val())),
-                ppn = parseInt(Import.unsetIdr($('#itemPpnIDR').val())),
-                ppnbm = parseFloat($('#itemPpnbm').val()),
-                pabean_value = parseFloat(Import.unsetIdr($('#itemValue').val())),
-                pph = parseFloat($('#itemPph').val()),
-                fine = parseFloat($('#itemFine').val());
-                
-                var roundUpPph = Math.ceil((((pabean_value + bm) * pph) / 100) / 1000);
-                var pphIDR = roundUpPph * 1000;
-                $('#itemPphIDR').val(Import.setIdr(pphIDR));
-
-                var roundUpPpnbm = Math.ceil((((pabean_value + bm) * ppnbm) / 100) / 1000);
-                var ppnbmIDR = roundUpPpnbm * 1000;
-                $('#itemPpnbmIDR').val(Import.setIdr(ppnbmIDR));
-
-                var fineValue = ((bm * fine) / 100); //+ bm;
-                $('#itemFineIDR').val(Import.setIdr(fineValue));
-                
-                var totalCollect = bm + ppn + ppnbm + pphIDR + fineValue;
-                $('#itemTotalCollect').val(Import.setIdr(totalCollect));
+            $('#itemPpn, #itemPph, #itemFine, #itemPpnbm').on('keyup change input', function(){
+                Import.recalcPungutan();
             });
 
-            // set cif automaticly
-            // cif = fob + freight + insurance
-            $('#itemFob, #itemFreight, #itemInsurance, #itemFree').on('keyup', function() {
-                var fob = parseInt($('#itemFob').val()),
-                freight = parseInt($('#itemFreight').val()),
-                insurance = parseInt($('#itemInsurance').val()),
-                kurs = parseFloat($('#itemKurs').val()),
-                free = parseInt($('#itemFree').val()),
-                // currency by selector not attr anymoe
-                // usd = parseFloat($('#itemFree').attr('value-kurs')),
-                usd = parseFloat($('#itemFreeCurrency').val()),
-                freeIDR = Math.round(free * usd);
+            $('#itemFob, #itemFreight, #itemInsurance, #itemKurs').on('keyup change input', function() {
+                Import.recalcItem();
+            });
 
-                var cif = fob + freight + insurance;
-                $('#itemCif').val(cif);
-                // set nilai pabean
-                // cif * kurs
-                // new formula (cif * kurs) - freeidr
-                // set item freeidr
-                $('#itemFreeIDR').val(Import.setIdr(freeIDR));
-                var pabean_value = Math.round((cif * kurs) - freeIDR);
-                $('#itemValue').val(Import.setIdr(pabean_value));
+            $('#addItemModal').on('focus', '.is-zero-clear', function() {
+                var val = $.trim($(this).val());
+                if (val === '0' || val === '0.0' || val === '0,0') {
+                    $(this).val('');
+                }
+            }).on('blur', '.is-zero-clear', function() {
+                if ($.trim($(this).val()) === '') {
+                    $(this).val('0');
+                    Import.recalcItem();
+                }
             });
 
             $('form[name="statusForm"]').on('submit', function(){

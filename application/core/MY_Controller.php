@@ -11,6 +11,8 @@ class MY_Controller extends MX_Controller {
 		 * set session for user logged in
 		 */
 		$this->session->set_userdata($data);
+		// Jangan refresh last_user_activity di sini:
+		// banyak AJAX memanggil auth() dan akan mencegah idle timeout.
         return $data['users'];
     }
     protected function my_decrypt($data) {
