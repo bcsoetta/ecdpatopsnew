@@ -28,6 +28,32 @@ class Import_model extends MY_Model {
         return isset($type[$id]) ? $type[$id] : '';
     }
 
+    /**
+     * Pembulatan pungutan per seri barang.
+     * BM: ceil ke ribuan.
+     * PPN / PPnBM: (dasar + BM) x tarif, floor ke rupiah penuh.
+     * PPh: dasar nilai impor floor ke ribuan dulu, baru x tarif.
+     *
+     * @param float $dasar Nilai pabean setelah dikurangi pembebasan
+     * @return array{bm:int|float,ppn:int|float,ppnbm:int|float,pph:float}
+     */
+    private function calc_item_pungutan($dasar, $bm_tax, $ppn_tax, $ppnbm_tax, $pph_tax) {
+        $dasar = (float) $dasar;
+        $bmIdr = ceil(((($dasar * (float) $bm_tax) / 100) / 1000)) * 1000;
+        $nilaiImpor = $dasar + $bmIdr;
+        $ppnIdr = floor(($nilaiImpor * (float) $ppn_tax) / 100);
+        $ppnbmIdr = floor(($nilaiImpor * (float) $ppnbm_tax) / 100);
+        $dasarPph = floor($nilaiImpor / 1000) * 1000;
+        $pphIdr = ($dasarPph * (float) $pph_tax) / 100;
+
+        return array(
+            'bm' => $bmIdr,
+            'ppn' => $ppnIdr,
+            'ppnbm' => $ppnbmIdr,
+            'pph' => $pphIdr
+        );
+    }
+
     private function return_type($id) {
         $type = array(
             '1' => 'Diambil Sendiri',
@@ -748,11 +774,17 @@ class Import_model extends MY_Model {
             $multiplier = $pabean_value - $free;
             
         
-            $bmIdr = ceil(((($multiplier * $val['bm_tax']) / 100) / 1000)) * 1000;
-            // echo $bmIdr; exit();
-            $ppnIdr = ceil((((($multiplier + $bmIdr) * $val['ppn_tax']) / 100) / 1000)) * 1000;
-            $ppnbmIdr = ceil((((($multiplier + $bmIdr) * $val['ppnbm_tax']) / 100) / 1000)) * 1000;
-            $pphIdr = ceil((((($multiplier + $bmIdr) * $val['pph_tax']) / 100) / 1000)) * 1000;
+            $pungutan = $this->calc_item_pungutan(
+                $multiplier,
+                $val['bm_tax'],
+                $val['ppn_tax'],
+                $val['ppnbm_tax'],
+                $val['pph_tax']
+            );
+            $bmIdr = $pungutan['bm'];
+            $ppnIdr = $pungutan['ppn'];
+            $ppnbmIdr = $pungutan['ppnbm'];
+            $pphIdr = $pungutan['pph'];
             
             $items_key[] = $val['item_id'];
 
@@ -854,11 +886,17 @@ class Import_model extends MY_Model {
             $multiplier = $pabean_value - $free;
             
         
-            $bmIdr = ceil(((($multiplier * $val['bm_tax']) / 100) / 1000)) * 1000;
-            // echo $bmIdr; exit();
-            $ppnIdr = ceil((((($multiplier + $bmIdr) * $val['ppn_tax']) / 100) / 1000)) * 1000;
-            $ppnbmIdr = ceil((((($multiplier + $bmIdr) * $val['ppnbm_tax']) / 100) / 1000)) * 1000;
-            $pphIdr = ceil((((($multiplier + $bmIdr) * $val['pph_tax']) / 100) / 1000)) * 1000;
+            $pungutan = $this->calc_item_pungutan(
+                $multiplier,
+                $val['bm_tax'],
+                $val['ppn_tax'],
+                $val['ppnbm_tax'],
+                $val['pph_tax']
+            );
+            $bmIdr = $pungutan['bm'];
+            $ppnIdr = $pungutan['ppn'];
+            $ppnbmIdr = $pungutan['ppnbm'];
+            $pphIdr = $pungutan['pph'];
             
             $name .=  $val['name'] . $separator;
             // set total

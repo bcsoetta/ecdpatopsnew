@@ -59,6 +59,36 @@
             $('#itemValue').val(Import.setIdr(pabean));
             Import.recalcPungutan();
         },
+        /**
+         * Pembulatan pungutan per seri barang:
+         * - BM: ceil ke ribuan
+         * - PPN / PPnBM: (nilai pabean + BM) x tarif, floor ke rupiah penuh
+         * - PPh: dasar nilai impor floor ke ribuan dulu, baru x tarif
+         */
+        calcPungutan: function(dasar, bmPct, ppnPct, ppnbmPct, pphPct) {
+            dasar = Number(dasar) || 0;
+            bmPct = Number(bmPct) || 0;
+            ppnPct = Number(ppnPct) || 0;
+            ppnbmPct = Number(ppnbmPct) || 0;
+            pphPct = Number(pphPct) || 0;
+
+            var bmIdr = Math.ceil(((dasar * bmPct) / 100) / 1000) * 1000;
+            if (!isFinite(bmIdr)) bmIdr = 0;
+
+            var nilaiImpor = dasar + bmIdr;
+
+            var ppnIdr = Math.floor((nilaiImpor * ppnPct) / 100);
+            if (!isFinite(ppnIdr)) ppnIdr = 0;
+
+            var ppnbmIdr = Math.floor((nilaiImpor * ppnbmPct) / 100);
+            if (!isFinite(ppnbmIdr)) ppnbmIdr = 0;
+
+            var dasarPph = Math.floor(nilaiImpor / 1000) * 1000;
+            var pphIdr = (dasarPph * pphPct) / 100;
+            if (!isFinite(pphIdr)) pphIdr = 0;
+
+            return { bm: bmIdr, ppn: ppnIdr, ppnbm: ppnbmIdr, pph: pphIdr, nilaiImpor: nilaiImpor };
+        },
         recalcPungutan: function() {
             var pabean = Import.toNumber($('#itemValue').val());
             var bmPct = 10;
@@ -68,14 +98,11 @@
             var pphPct = Import.pctNumber($('#itemPph').val());
             var finePct = Import.pctNumber($('#itemFine').val());
 
-            var bmIdr = Math.ceil(((pabean * bmPct) / 100) / 1000) * 1000;
-            if (!isFinite(bmIdr)) bmIdr = 0;
-            var ppnIdr = Math.ceil((((pabean + bmIdr) * ppnPct) / 100) / 1000) * 1000;
-            if (!isFinite(ppnIdr)) ppnIdr = 0;
-            var ppnbmIdr = Math.ceil((((pabean + bmIdr) * ppnbmPct) / 100) / 1000) * 1000;
-            if (!isFinite(ppnbmIdr)) ppnbmIdr = 0;
-            var pphIdr = Math.ceil((((pabean + bmIdr) * pphPct) / 100) / 1000) * 1000;
-            if (!isFinite(pphIdr)) pphIdr = 0;
+            var pungutan = Import.calcPungutan(pabean, bmPct, ppnPct, ppnbmPct, pphPct);
+            var bmIdr = pungutan.bm;
+            var ppnIdr = pungutan.ppn;
+            var ppnbmIdr = pungutan.ppnbm;
+            var pphIdr = pungutan.pph;
             var fineIdr = (bmIdr * finePct) / 100;
             if (!isFinite(fineIdr)) fineIdr = 0;
 
@@ -535,10 +562,17 @@
                 var pabeanValue = Math.round(value.kurs * value.cif);
                 row.find('[view="imPabean"]').html(Import.setIdr(pabeanValue));
                 row.find('[view="imFree"]').html(value.free_value + ' ' + value.free_currency);
-                var bmValue = Math.ceil((((pabeanValue - value.free) * value.bm_tax) / 100) / 1000) * 1000;
-                var ppnValue = Math.ceil((((pabeanValue - value.free + bmValue) * value.ppn_tax) / 100) / 1000) * 1000;
-                var pphValue = Math.ceil((((pabeanValue - value.free + bmValue) * value.pph_tax) / 100) / 1000) * 1000;
-                var ppnbmValue = Math.ceil((((pabeanValue - value.free + bmValue) * value.ppnbm_tax) / 100) / 1000) * 1000;
+                var pungutan = Import.calcPungutan(
+                    pabeanValue - value.free,
+                    value.bm_tax,
+                    value.ppn_tax,
+                    value.ppnbm_tax,
+                    value.pph_tax
+                );
+                var bmValue = pungutan.bm;
+                var ppnValue = pungutan.ppn;
+                var pphValue = pungutan.pph;
+                var ppnbmValue = pungutan.ppnbm;
                 var fineValue = (bmValue * value.fine_tax) / 100;
                 var collect = 'BM: ' + Import.setIdr(bmValue) + '<br /> Ppn: ' + Import.setIdr(ppnValue) + '<br /> Pph: ' + Import.setIdr(pphValue) + '<br /> Ppnbm: ' + Import.setIdr(ppnbmValue) + '<br /> Denda: ' + Import.setIdr(fineValue);
                 row.find('[view="imCollect"]').html(collect);

@@ -173,6 +173,16 @@ File terkait:
 **Status BPJ (sisa hari):** `periode - (hari sejak doc_date)`  
 Monitoring mengurutkan sisa hari terkecil lebih dulu.
 
+**Pembulatan pungutan (per seri barang):**
+
+| Pungutan | Aturan |
+|----------|--------|
+| Bea Masuk | `ceil` ke ribuan penuh |
+| PPN / PPnBM | `(nilai pabean + BM) × tarif`, lalu `floor` ke rupiah penuh |
+| PPh | Dasar nilai impor `floor` ke ribuan dulu, baru × tarif |
+
+Acuan uji: CIF 100, kurs 17594, BM 10%, PPN 10%, PPh 7% → BM 176.000 + PPN 193.540 + PPh 135.450 = **504.990**
+
 ---
 
 ## 7. Cara uji cepat (opsional)
