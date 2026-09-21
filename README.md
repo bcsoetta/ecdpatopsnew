@@ -200,3 +200,13 @@ Acuan uji: CIF 100, kurs 17594, BM 10%, PPN 10%, PPh 7% → BM 176.000 + PPN 193
 - Partial save setting: halaman SMTP tidak boleh menimpa format template; sebaliknya password SMTP kosong = retain.
 - Jangan auto-migrate schema dari PHP.
 - Session guard: timer idle **client** sebagai acuan UI; ping server untuk auth/logout.
+
+---
+
+## 9. Dokumentasi lengkap
+
+Dokumentasi bisnis + developer + bagan alur + security audit:
+
+- **Markdown:** [`DOKUMENTASI-APLIKASI.md`](DOKUMENTASI-APLIKASI.md)
+- Canvas (Cursor IDE): `patops-dokumentasi-lengkap.canvas.tsx`, `security-audit-20.canvas.tsx`
+
