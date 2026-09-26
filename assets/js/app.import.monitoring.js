@@ -448,7 +448,7 @@
             $('#summaryDateRange').daterangepicker($.extend(Monitor.pickerCommon(), {
                 autoUpdateInput: false,
                 autoApply: false,
-                opens: 'left',
+                opens: 'right',
                 drops: 'down',
                 startDate: moment(Monitor.summary.dateFrom),
                 endDate: moment(Monitor.summary.dateUntil)
@@ -776,7 +776,7 @@
             $('#filterDocDate').daterangepicker($.extend(Monitor.pickerCommon(), {
                 autoUpdateInput: false,
                 autoApply: false,
-                opens: 'center',
+                opens: 'right',
                 drops: 'down'
             }));
 

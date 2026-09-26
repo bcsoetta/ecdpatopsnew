@@ -86,6 +86,8 @@
                                             #monitorHeadline .headline-card.is-active { box-shadow: inset 0 0 0 3px #1bc5bd; }
                                             #monitorHeadline .headline-card:hover { opacity: 0.92; }
                                             #notifyFieldChips .btn-row-field { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+                                            /* Popup daterangepicker harus di atas sidebar (.aside z-index 98) */
+                                            .daterangepicker { z-index: 1060 !important; }
                                             #monitorSummary { border: 1px solid #e4e6ef; border-radius: 4px; margin-bottom: 1.25rem; background: #fff; }
                                             #monitorSummary .summary-filter { background: #f3f6f9; padding: 12px 16px; border-bottom: 1px solid #e4e6ef; }
                                             #monitorSummary .summary-card { border: 1px solid #e4e6ef; border-radius: 6px; padding: 16px; height: 100%; background: #fff; }
@@ -616,6 +618,6 @@
             </div>
         </div>
 
-        <script src="<?=base_url('assets/js/app.import.monitoring.js'); ?>?v=20260926b"></script>
+        <script src="<?=base_url('assets/js/app.import.monitoring.js'); ?>?v=20260926c"></script>
     </body>
 </html>
