@@ -170,6 +170,7 @@
                                                             </th>
                                                             <th>Nomor Lengkap</th>
                                                             <th class="is-sortable" data-sort="doc_date">Tanggal Dok <i class="fa fa-sort"></i></th>
+                                                            <th class="is-sortable" data-sort="bpj_number">Nomor BPJ <i class="fa fa-sort"></i></th>
                                                             <th>Penumpang</th>
                                                             <th>Paspor</th>
                                                             <th class="is-sortable" data-sort="bpjStatus">Status BPJ <i class="fa fa-sort"></i></th>
@@ -184,6 +185,9 @@
                                                             </th>
                                                             <th>
                                                                 <input type="text" class="form-control form-control-sm" name="filterDocDate" id="filterDocDate" placeholder="Pilih tanggal" readonly />
+                                                            </th>
+                                                            <th>
+                                                                <input type="text" class="form-control form-control-sm" name="filterBpjNumber" placeholder="Cari BPJ" />
                                                             </th>
                                                             <th>
                                                                 <input type="text" class="form-control form-control-sm" name="filterName" placeholder="Cari nama" />
@@ -227,6 +231,7 @@
                                                             </td>
                                                             <td view="docNumber"></td>
                                                             <td view="docDate"></td>
+                                                            <td view="bpjNumber"></td>
                                                             <td view="name"></td>
                                                             <td view="passport"></td>
                                                             <td class="text-center" view="bpjStatus"></td>
@@ -611,6 +616,6 @@
             </div>
         </div>
 
-        <script src="<?=base_url('assets/js/app.import.monitoring.js'); ?>?v=20260916b"></script>
+        <script src="<?=base_url('assets/js/app.import.monitoring.js'); ?>?v=20260926b"></script>
     </body>
 </html>

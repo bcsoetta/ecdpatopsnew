@@ -499,7 +499,7 @@ class Import extends MY_Controller {
 		$dateFrom = isset($params['dateFrom']) ? trim($params['dateFrom']) : '';
 		$dateUntil = isset($params['dateUntil']) ? trim($params['dateUntil']) : '';
 		if ($dateFrom === '') {
-			$dateFrom = '2020-01-01';
+			$dateFrom = date('Y') . '-01-01';
 		}
 		if ($dateUntil === '') {
 			$dateUntil = date('Y-m-d');
@@ -517,7 +517,7 @@ class Import extends MY_Controller {
 			$params = array();
 		}
 		if (empty($params['dateFrom'])) {
-			$params['dateFrom'] = '2020-01-01';
+			$params['dateFrom'] = date('Y') . '-01-01';
 		}
 		if (empty($params['dateUntil'])) {
 			$params['dateUntil'] = date('Y-m-d');
@@ -535,7 +535,7 @@ class Import extends MY_Controller {
 			$params = array();
 		}
 		if (empty($params['dateFrom'])) {
-			$params['dateFrom'] = '2020-01-01';
+			$params['dateFrom'] = date('Y') . '-01-01';
 		}
 		if (empty($params['dateUntil'])) {
 			$params['dateUntil'] = date('Y-m-d');

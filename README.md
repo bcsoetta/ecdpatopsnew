@@ -69,7 +69,7 @@ File: `application/views/aside/menu.php`
 
 ### 3.5 Ringkasan Monitoring (3 card + filter tanggal)
 
-Filter default: **2020-01-01 s/d hari ini**
+Filter default: **1 Januari tahun berjalan s/d hari ini**. Date picker (ringkasan & kolom Tanggal Dok) memakai dropdown bulan/tahun + pintasan (Tahun Ini, Tahun Lalu, Bulan Ini, 30 Hari Terakhir).
 
 | Card | Arti data |
 |------|-----------|

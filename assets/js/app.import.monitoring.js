@@ -5,6 +5,7 @@
             dateFrom: '',
             dateUntil: '',
             docNumber: '',
+            bpjNumber: '',
             name: '',
             passport: '',
             periode: '',
@@ -19,10 +20,45 @@
             notifyFields: []
         },
         summary: {
-            dateFrom: '2020-01-01',
+            dateFrom: '',
             dateUntil: '',
-            defaultDateFrom: '2020-01-01',
+            defaultDateFrom: (new Date().getFullYear()) + '-01-01',
             ready: false
+        },
+        // Opsi bersama daterangepicker: dropdown bulan/tahun + pintasan periode
+        pickerCommon: function() {
+            var opts = {
+                showDropdowns: true,
+                minYear: 2015,
+                maxYear: new Date().getFullYear() + 1,
+                linkedCalendars: false,
+                alwaysShowCalendars: true,
+                buttonClasses: 'btn',
+                applyClass: 'btn-primary',
+                cancelClass: 'btn-secondary',
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    separator: ' - ',
+                    applyLabel: 'Pilih',
+                    cancelLabel: 'Hapus',
+                    fromLabel: 'Dari',
+                    toLabel: 'Sampai',
+                    customRangeLabel: 'Custom',
+                    weekLabel: 'M',
+                    daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                    monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    firstDay: 1
+                }
+            };
+            if (typeof moment === 'function') {
+                opts.ranges = {
+                    'Tahun Ini': [moment().startOf('year'), moment()],
+                    'Tahun Lalu': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                    'Bulan Ini': [moment().startOf('month'), moment()],
+                    '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()]
+                };
+            }
+            return opts;
         },
         reekspor: {
             page: 1,
@@ -67,6 +103,7 @@
         },
         collectFilters: function() {
             Monitor.params.docNumber = $.trim($('[name="filterDocNumber"]').val());
+            Monitor.params.bpjNumber = $.trim($('[name="filterBpjNumber"]').val());
             Monitor.params.name = $.trim($('[name="filterName"]').val());
             Monitor.params.passport = $.trim($('[name="filterPassport"]').val());
             Monitor.params.periode = $.trim($('[name="filterPeriode"]').val());
@@ -92,7 +129,7 @@
             var nav = result.find('[name="searchNav"]');
 
             if (!data.rows || data.rows.length === 0) {
-                rows.append('<tr><td colspan="9" class="text-center text-muted py-8">Tidak ada data</td></tr>');
+                rows.append('<tr><td colspan="10" class="text-center text-muted py-8">Tidak ada data</td></tr>');
             }
             $('#checkAllNotify').prop('checked', false);
 
@@ -104,6 +141,7 @@
                 row.attr('id', value.import);
                 row.find('[view="docNumber"]').html(value.docNumber);
                 row.find('[view="docDate"]').html(value.docDate);
+                row.find('[view="bpjNumber"]').html(value.bpjNumber || '');
                 row.find('[view="name"]').html(value.name);
                 row.find('[view="passport"]').html(value.passport);
                 row.find('[view="bpjStatus"]').html(value.bpjStatus);
@@ -148,6 +186,7 @@
                 dateFrom: Monitor.params.dateFrom,
                 dateUntil: Monitor.params.dateUntil,
                 docNumber: Monitor.params.docNumber,
+                bpjNumber: Monitor.params.bpjNumber,
                 name: Monitor.params.name,
                 passport: Monitor.params.passport,
                 periode: Monitor.params.periode,
@@ -406,30 +445,14 @@
                 Monitor.loadSummary();
                 return;
             }
-            $('#summaryDateRange').daterangepicker({
+            $('#summaryDateRange').daterangepicker($.extend(Monitor.pickerCommon(), {
                 autoUpdateInput: false,
                 autoApply: false,
                 opens: 'left',
                 drops: 'down',
                 startDate: moment(Monitor.summary.dateFrom),
-                endDate: moment(Monitor.summary.dateUntil),
-                buttonClasses: 'btn',
-                applyClass: 'btn-primary',
-                cancelClass: 'btn-secondary',
-                locale: {
-                    format: 'YYYY-MM-DD',
-                    separator: ' - ',
-                    applyLabel: 'Pilih',
-                    cancelLabel: 'Hapus',
-                    fromLabel: 'Dari',
-                    toLabel: 'Sampai',
-                    customRangeLabel: 'Custom',
-                    weekLabel: 'M',
-                    daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                    monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                    firstDay: 1
-                }
-            });
+                endDate: moment(Monitor.summary.dateUntil)
+            }));
 
             $('#summaryDateRange').on('apply.daterangepicker', function(ev, picker) {
                 Monitor.summary.dateFrom = picker.startDate.format('YYYY-MM-DD');
@@ -554,7 +577,7 @@
             }
         },
         resetFilters: function() {
-            $('[name="filterDocNumber"], [name="filterName"], [name="filterPassport"], [name="filterPeriode"], [name="filterBpjStatus"], [name="filterBpjDays"]').val('');
+            $('[name="filterDocNumber"], [name="filterBpjNumber"], [name="filterName"], [name="filterPassport"], [name="filterPeriode"], [name="filterBpjStatus"], [name="filterBpjDays"]').val('');
             $('[name="filterStatus"], [name="filterBpjOp"]').val('');
             $('#filterDocDate').val('');
             Monitor.params.dateFrom = '';
@@ -750,28 +773,12 @@
             if (typeof $.fn.daterangepicker !== 'function') {
                 return;
             }
-            $('#filterDocDate').daterangepicker({
+            $('#filterDocDate').daterangepicker($.extend(Monitor.pickerCommon(), {
                 autoUpdateInput: false,
                 autoApply: false,
                 opens: 'center',
-                drops: 'down',
-                buttonClasses: 'btn',
-                applyClass: 'btn-primary',
-                cancelClass: 'btn-secondary',
-                locale: {
-                    format: 'YYYY-MM-DD',
-                    separator: ' - ',
-                    applyLabel: 'Pilih',
-                    cancelLabel: 'Hapus',
-                    fromLabel: 'Dari',
-                    toLabel: 'Sampai',
-                    customRangeLabel: 'Custom',
-                    weekLabel: 'M',
-                    daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                    monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                    firstDay: 1
-                }
-            });
+                drops: 'down'
+            }));
 
             $('#filterDocDate').on('apply.daterangepicker', function(ev, picker) {
                 $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
@@ -795,7 +802,7 @@
         Monitor.initDateRange();
         Monitor.initSummaryDateRange();
 
-        $('[name="filterDocNumber"], [name="filterName"], [name="filterPassport"], [name="filterPeriode"], [name="filterBpjStatus"], [name="filterBpjDays"]').on('keyup input', function() {
+        $('[name="filterDocNumber"], [name="filterBpjNumber"], [name="filterName"], [name="filterPassport"], [name="filterPeriode"], [name="filterBpjStatus"], [name="filterBpjDays"]').on('keyup input', function() {
             Monitor.scheduleSearch();
         });
 

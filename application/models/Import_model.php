@@ -152,8 +152,9 @@ class Import_model extends MY_Model {
 
         $bpjExpr = $this->bpj_remain_expr();
 
-        $this->db->select('A.id AS importID, A.doc_number, A.doc_date, A.name, A.passport, A.status, A.periode, A.email');
+        $this->db->select('A.id AS importID, A.doc_number, A.doc_date, A.name, A.passport, A.status, A.periode, A.email, MAX(G.doc_number) AS bpj_number');
         $this->db->from('import A');
+        $this->db->join('import_guarantee G', 'A.id = G.header_id', 'left');
         $this->db->where('A.is_deleted', '0');
         $this->db->where('A.status !=', '3');
 
@@ -165,6 +166,9 @@ class Import_model extends MY_Model {
         }
         if (!empty($params['docNumber'])) {
             $this->db->like('A.doc_number', $params['docNumber']);
+        }
+        if (!empty($params['bpjNumber'])) {
+            $this->db->like('G.doc_number', $params['bpjNumber']);
         }
         if (!empty($params['name'])) {
             $this->db->like('A.name', $params['name']);
@@ -198,10 +202,13 @@ class Import_model extends MY_Model {
         }
         $this->apply_headline_bucket(isset($params['headline']) ? $params['headline'] : '', $bpjExpr);
 
+        $this->db->group_by('A.id');
+
         $sortMap = array(
             'doc_date' => 'A.doc_date',
             'periode' => 'A.periode',
-            'bpjStatus' => $bpjExpr
+            'bpjStatus' => $bpjExpr,
+            'bpj_number' => 'bpj_number'
         );
         $sortBy = $bpjExpr;
         $sortDir = 'ASC';
@@ -232,6 +239,7 @@ class Import_model extends MY_Model {
                     'import' => $row['importID'],
                     'docNumber' => $row['doc_number'],
                     'docDate' => $row['doc_date'],
+                    'bpjNumber' => isset($row['bpj_number']) ? $row['bpj_number'] : '',
                     'name' => $row['name'],
                     'passport' => $row['passport'],
                     'status' => $row['status'],
@@ -329,7 +337,7 @@ class Import_model extends MY_Model {
             'jaminanValue' => $guar && isset($guar['jaminanValue']) ? (float) $guar['jaminanValue'] : 0,
             'dateFrom' => $dateFrom,
             'dateUntil' => $dateUntil,
-            'defaultDateFrom' => '2020-01-01'
+            'defaultDateFrom' => date('Y') . '-01-01'
         );
     }
 
